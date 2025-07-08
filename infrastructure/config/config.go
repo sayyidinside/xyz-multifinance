@@ -44,6 +44,10 @@ type Config struct {
 	SmtpHost     string `mapstructure:"SMTP_HOST"`
 	SmtPort      string `mapstructure:"SMTP_PORT"`
 
+	// Redis
+	RedisAddress  string `mapstructure:"REDIS_ADDRESS"`
+	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
+
 	// Database
 	ProdDbUsername  string `mapstructure:"PROD_DB_USERNAME"`
 	ProdDbPassword  string `mapstructure:"PROD_DB_PASSWORD"`

@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"log"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sayyidinside/gofiber-clean-fresh/cmd/worker"
 	"github.com/sayyidinside/gofiber-clean-fresh/domain/repository"
@@ -15,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Initialize(app *fiber.App, db *gorm.DB) {
+func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.Client, lockRedis *redis.Client) {
 	// Repositories
 	userRepo := repository.NewUserRepository(db)
 	permissionRepo := repository.NewPermissionRepository(db)

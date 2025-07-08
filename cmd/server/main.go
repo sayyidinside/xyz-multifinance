@@ -10,6 +10,7 @@ import (
 	"github.com/sayyidinside/gofiber-clean-fresh/cmd/bootstrap"
 	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/config"
 	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/database"
+	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/redis"
 	"github.com/sayyidinside/gofiber-clean-fresh/pkg/helpers"
 )
 
@@ -40,7 +41,11 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	bootstrap.Initialize(app, db)
+	redisClient := redis.Connect()
+
+	bootstrap.Initialize(
+		app, db, redisClient.CacheClient, redisClient.LockClient,
+	)
 
 	app.Use(helpers.NotFoundHelper)
 
