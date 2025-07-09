@@ -466,8 +466,8 @@ func ExtractIdentifierAndUsername(c *fiber.Ctx) context.Context {
 		username = sessionUsername.(string)
 	}
 
-	ctx = context.WithValue(ctx, "identifier", identifier)
-	ctx = context.WithValue(ctx, "username", username)
+	ctx = context.WithValue(ctx, ctxKeyIdentifier, identifier)
+	ctx = context.WithValue(ctx, ctxKeyUsername, username)
 
 	return ctx
 }
@@ -483,8 +483,8 @@ func InitialLogExtractIdentifierAndUsername(c *fiber.Ctx, i interface{}) (contex
 	}
 
 	// passing to context
-	ctx = context.WithValue(ctx, "identifier", identifier)
-	ctx = context.WithValue(ctx, "username", username)
+	ctx = context.WithValue(ctx, ctxKeyIdentifier, identifier)
+	ctx = context.WithValue(ctx, ctxKeyUsername, username)
 
 	log := CreateLog(i)
 
