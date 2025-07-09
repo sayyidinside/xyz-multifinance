@@ -3,8 +3,8 @@ package bootstrap
 import (
 	"log"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
+	"github.com/redis/go-redis/v9"
 	"github.com/sayyidinside/gofiber-clean-fresh/cmd/worker"
 	"github.com/sayyidinside/gofiber-clean-fresh/domain/repository"
 	"github.com/sayyidinside/gofiber-clean-fresh/domain/service"
