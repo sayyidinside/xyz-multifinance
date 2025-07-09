@@ -27,6 +27,7 @@ type Transaction struct {
 	Tenor            uint              `json:"tenor" gorm:"type:smallint unsigned"`
 	Status           TransactionStatus `gorm:"type:enum('active', 'paid', 'canceled');default:'active'"`
 	User             User              `json:"user" gorm:"foreignKey:UserID"`
+	Payments         []Payment         `json:"payments" gorm:"foreignKey:TransactionID"`
 	gorm.Model
 }
 
