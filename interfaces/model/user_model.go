@@ -12,16 +12,19 @@ import (
 
 type (
 	UserDetail struct {
-		ID          uint         `json:"id"`
-		UUID        uuid.UUID    `json:"uuid"`
-		RoleID      uint         `json:"role_id"`
-		Role        string       `json:"role"`
-		Name        string       `json:"name"`
-		Username    string       `json:"username"`
-		Email       string       `json:"email"`
-		ValidatedAt sql.NullTime `json:"validated_at"`
-		CreatedAt   time.Time    `json:"created_at"`
-		UpdatedAt   time.Time    `json:"updated_at"`
+		ID           uint                `json:"id"`
+		UUID         uuid.UUID           `json:"uuid"`
+		RoleID       uint                `json:"role_id"`
+		Role         string              `json:"role"`
+		Username     string              `json:"username"`
+		Email        string              `json:"email"`
+		ValidatedAt  sql.NullTime        `json:"validated_at"`
+		Profile      *UserProfileDetail  `json:"profile,omitempty"`
+		Document     *UserDocumentDetail `json:"document,omitempty"`
+		Limits       []LimitList         `json:"limits"`
+		Transactions []TransactionList   `json:"transactions"`
+		CreatedAt    time.Time           `json:"created_at"`
+		UpdatedAt    time.Time           `json:"updated_at"`
 	}
 
 	LogUserInfo struct {
@@ -62,15 +65,19 @@ type (
 
 func UserToDetailModel(user *entity.User) *UserDetail {
 	return &UserDetail{
-		ID:          user.ID,
-		UUID:        user.UUID,
-		RoleID:      user.RoleID,
-		Role:        user.Role.Name,
-		Username:    user.Username,
-		Email:       user.Email,
-		ValidatedAt: user.ValidatedAt,
-		CreatedAt:   user.CreatedAt,
-		UpdatedAt:   user.UpdatedAt,
+		ID:           user.ID,
+		UUID:         user.UUID,
+		RoleID:       user.RoleID,
+		Role:         user.Role.Name,
+		Username:     user.Username,
+		Email:        user.Email,
+		ValidatedAt:  user.ValidatedAt,
+		Profile:      UserProfileToDetailModel(user.Profile),
+		Document:     UserDocumentToDetailModel(user.Document),
+		Limits:       LimitToListModels(user.Limits),
+		Transactions: TransactionToListModels(user.Transactions),
+		CreatedAt:    user.CreatedAt,
+		UpdatedAt:    user.UpdatedAt,
 	}
 }
 
@@ -78,6 +85,7 @@ func UserToModel(user *entity.User) *UserList {
 	return &UserList{
 		ID:       user.ID,
 		UUID:     user.UUID,
+		Name:     user.Profile.Name,
 		Username: user.Username,
 		Email:    user.Email,
 		Role:     user.Role.Name,
@@ -122,7 +130,7 @@ func ChangePasswordToEntity(input *ChangePasswordInput) *entity.User {
 	}
 }
 
-func SanitizeUserInput(input *UserInput) {
+func (input *UserInput) Sanitize() {
 	sanitizer := bluemonday.StrictPolicy()
 
 	input.Name = sanitizer.Sanitize(input.Name)

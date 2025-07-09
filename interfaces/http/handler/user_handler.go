@@ -102,7 +102,7 @@ func (h *userHandler) CreateUser(c *fiber.Ctx) error {
 			Errors:  err,
 		})
 	} else {
-		model.SanitizeUserInput(&input)
+		input.Sanitize()
 
 		if err := helpers.ValidateInput(input); err != nil {
 			response = helpers.LogBaseResponse(&logData, helpers.BaseResponse{
