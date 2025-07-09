@@ -2,6 +2,7 @@ package entity
 
 import (
 	"database/sql/driver"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -9,20 +10,28 @@ import (
 )
 
 type Transaction struct {
-	ID               uint              `json:"id" gorm:"primaryKey"`
-	UUID             uuid.UUID         `json:"uuid" gorm:"uniqueIndex;type:char(36)"`
-	UserID           uint              `json:"user_id"`
-	AssetName        string            `json:"asset_name"`
-	ContractNumber   string            `json:"contract_number" gorm:"type:varchar(255);uniqueIndex"`
-	OnTheRoad        decimal.Decimal   `json:"on_the_road" gorm:"type:decimal(20,2)"`
-	AdminFee         decimal.Decimal   `json:"admin_fee" gorm:"type:decimal(20,2)"`
-	InstalmentAmount decimal.Decimal   `json:"instalment_amount" gorm:"type:decimal(20,2)"`
-	InterestAmount   decimal.Decimal   `json:"interest_amount" gorm:"type:decimal(20,2)"`
-	Tenor            uint              `json:"tenor" gorm:"type:smallint unsigned"`
-	Status           TransactionStatus `json:"status" gorm:"type:enum('active', 'paid', 'canceled');default:'active'"`
-	User             User              `json:"user" gorm:"foreignKey:UserID"`
-	Payments         []Payment         `json:"payments" gorm:"foreignKey:TransactionID"`
-	gorm.Model
+	ID                 uint              `json:"id" gorm:"primaryKey"`
+	UUID               uuid.UUID         `json:"uuid" gorm:"uniqueIndex;type:char(36);not null"`
+	UserID             uint              `json:"user_id" gorm:"index;not null"`
+	AssetName          string            `json:"asset_name" gorm:"not null"`
+	ContractNumber     string            `json:"contract_number" gorm:"type:varchar(255);uniqueIndex;not null"`
+	OnTheRoad          decimal.Decimal   `json:"on_the_road" gorm:"type:decimal(20,2);not null"`
+	AdminFee           decimal.Decimal   `json:"admin_fee" gorm:"type:decimal(20,2);not null"`
+	TotalLoanAmount    decimal.Decimal   `json:"total_loan_amount" gorm:"type:decimal(20,2);not null"`
+	MonthlyInstallment decimal.Decimal   `json:"monthly_installment" gorm:"type:decimal(20,2);not null"`
+	InterestAmount     decimal.Decimal   `json:"interest_amount" gorm:"type:decimal(20,2);not null"`
+	Tenor              uint              `json:"tenor" gorm:"type:smallint unsigned;not null"`
+	Status             TransactionStatus `json:"status" gorm:"type:enum('active', 'paid', 'canceled');default:'active'"`
+	StartDate          time.Time         `json:"start_date" gorm:"type:date;not null"`
+	EndDate            time.Time         `json:"end_date" gorm:"type:date"`
+
+	// Relationship
+	User     User      `json:"user" gorm:"foreignKey:UserID"`
+	Payments []Payment `json:"payments" gorm:"foreignKey:TransactionID"`
+
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }
 
 func (Transaction) TableName() string {
