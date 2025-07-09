@@ -17,17 +17,18 @@ type Transaction struct {
 	ContractNumber     string            `json:"contract_number" gorm:"type:varchar(255);uniqueIndex;not null"`
 	OnTheRoad          decimal.Decimal   `json:"on_the_road" gorm:"type:decimal(20,2);not null"`
 	AdminFee           decimal.Decimal   `json:"admin_fee" gorm:"type:decimal(20,2);not null"`
-	TotalLoanAmount    decimal.Decimal   `json:"total_loan_amount" gorm:"type:decimal(20,2);not null"`
+	TotalLoanAmount    decimal.Decimal   `json:"total_loan_amount" gorm:"->;type:decimal(20,2) GENERATED ALWAYS AS (on_the_road + admin_fee) STORE"`
 	MonthlyInstallment decimal.Decimal   `json:"monthly_installment" gorm:"type:decimal(20,2);not null"`
 	InterestAmount     decimal.Decimal   `json:"interest_amount" gorm:"type:decimal(20,2);not null"`
 	Tenor              uint              `json:"tenor" gorm:"type:smallint unsigned;not null"`
-	Status             TransactionStatus `json:"status" gorm:"type:enum('active', 'paid', 'canceled');default:'active'"`
 	StartDate          time.Time         `json:"start_date" gorm:"type:date;not null"`
 	EndDate            time.Time         `json:"end_date" gorm:"type:date"`
+	Status             TransactionStatus `json:"status" gorm:"type:enum('active', 'paid', 'canceled');default:'active'"`
 
 	// Relationship
-	User     User      `json:"user" gorm:"foreignKey:UserID"`
-	Payments []Payment `json:"payments" gorm:"foreignKey:TransactionID"`
+	User         User                     `json:"user" gorm:"foreignKey:UserID"`
+	Installments []TransactionInstallment `json:"installments" gorm:"foreignKey:TransactionID"`
+	Payments     []Payment                `json:"payments" gorm:"foreignKey:TransactionID"`
 
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
