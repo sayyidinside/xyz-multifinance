@@ -1,17 +1,11 @@
 package entity
 
 import (
+	"database/sql/driver"
+
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
-)
-
-type TransactionStatus string
-
-const (
-	TransactionActive   TransactionStatus = "active"
-	TransactionPaid     TransactionStatus = "paid"
-	TransactionCanceled TransactionStatus = "canceled"
 )
 
 type Transaction struct {
@@ -25,7 +19,7 @@ type Transaction struct {
 	InstalmentAmount decimal.Decimal   `json:"instalment_amount" gorm:"type:decimal(20,2)"`
 	InterestAmount   decimal.Decimal   `json:"interest_amount" gorm:"type:decimal(20,2)"`
 	Tenor            uint              `json:"tenor" gorm:"type:smallint unsigned"`
-	Status           TransactionStatus `gorm:"type:enum('active', 'paid', 'canceled');default:'active'"`
+	Status           TransactionStatus `json:"status" gorm:"type:enum('active', 'paid', 'canceled');default:'active'"`
 	User             User              `json:"user" gorm:"foreignKey:UserID"`
 	Payments         []Payment         `json:"payments" gorm:"foreignKey:TransactionID"`
 	gorm.Model
@@ -42,4 +36,21 @@ func (t *Transaction) BeforeCreate(tx *gorm.DB) (err error) {
 		t.UUID = uuid.New()
 	}
 	return
+}
+
+type TransactionStatus string
+
+const (
+	TransactionActive   TransactionStatus = "active"
+	TransactionPaid     TransactionStatus = "paid"
+	TransactionCanceled TransactionStatus = "canceled"
+)
+
+func (t *TransactionStatus) Scan(value interface{}) error {
+	*t = TransactionStatus(value.([]byte))
+	return nil
+}
+
+func (t TransactionStatus) Value() (driver.Value, error) {
+	return string(t), nil
 }
