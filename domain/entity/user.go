@@ -26,6 +26,7 @@ type User struct {
 	SelfieFile  string              `json:"selfie_file"`
 	KtpFile     string              `json:"ktp_file"`
 	Role        Role                `json:"role" gorm:"foreignKey:RoleID"`
+	Limits      []Limit             `json:"limits" gorm:"foreignKey:UserID"`
 	gorm.Model
 }
 
