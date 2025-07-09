@@ -20,7 +20,7 @@ type UserRepository interface {
 	Insert(ctx context.Context, user *entity.User) error
 	Update(ctx context.Context, user *entity.User) error
 	Delete(ctx context.Context, user *entity.User) error
-	NameExist(ctx context.Context, user *entity.User) bool
+	// NameExist(ctx context.Context, user *entity.User) bool
 	EmailExist(ctx context.Context, user *entity.User) bool
 	UsernameExist(ctx context.Context, user *entity.User) bool
 	FindByUsernameOrEmail(ctx context.Context, usernameOrEmail string) (*entity.User, error)
@@ -208,24 +208,24 @@ func (r *userRepository) Delete(ctx context.Context, user *entity.User) error {
 	return nil
 }
 
-func (r *userRepository) NameExist(ctx context.Context, user *entity.User) bool {
-	logData := helpers.CreateLog(r)
-	defer helpers.LogSystemWithDefer(ctx, &logData)
+// func (r *userRepository) NameExist(ctx context.Context, user *entity.User) bool {
+// 	logData := helpers.CreateLog(r)
+// 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
-	var totalData int64
+// 	var totalData int64
 
-	tx := r.DB.WithContext(ctx).Model(&entity.User{}).Where("name = ? ", user.Name)
-	if user.ID != 0 {
-		tx = tx.Not("id = ?", user.ID)
-	}
+// 	tx := r.DB.WithContext(ctx).Model(&entity.User{}).Where("name = ? ", user.Name)
+// 	if user.ID != 0 {
+// 		tx = tx.Not("id = ?", user.ID)
+// 	}
 
-	if err := tx.Count(&totalData).Error; err != nil {
-		logData.Err = err
-		logData.Message = "Not Passed"
-	}
+// 	if err := tx.Count(&totalData).Error; err != nil {
+// 		logData.Err = err
+// 		logData.Message = "Not Passed"
+// 	}
 
-	return totalData != 0
-}
+// 	return totalData != 0
+// }
 
 func (r *userRepository) EmailExist(ctx context.Context, user *entity.User) bool {
 	logData := helpers.CreateLog(r)

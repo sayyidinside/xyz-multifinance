@@ -283,12 +283,12 @@ func (s *userService) ValidateEntityInput(ctx context.Context, user *entity.User
 		})
 	}
 
-	if exist := s.repository.NameExist(ctx, user); exist {
-		errors = append(errors, helpers.ValidationError{
-			Field: "name",
-			Tag:   "duplicate",
-		})
-	}
+	// if exist := s.repository.NameExist(ctx, user); exist {
+	// 	errors = append(errors, helpers.ValidationError{
+	// 		Field: "name",
+	// 		Tag:   "duplicate",
+	// 	})
+	// }
 
 	if exist := s.repository.EmailExist(ctx, user); exist {
 		errors = append(errors, helpers.ValidationError{

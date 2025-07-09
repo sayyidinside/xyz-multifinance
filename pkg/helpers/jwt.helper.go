@@ -30,7 +30,7 @@ func GenerateToken(user *entity.User, expireTime int, secret string, isRefresh b
 	} else {
 		claim["exp"] = time.Now().Add(time.Duration(expireTime) * time.Minute).Unix()
 
-		claim["name"] = user.Name
+		claim["name"] = user.Username
 		claim["email"] = user.Email
 		claim["is_admin"] = user.Role.IsAdmin
 		claim["validated"] = user.ValidatedAt.Valid

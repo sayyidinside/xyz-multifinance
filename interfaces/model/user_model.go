@@ -66,7 +66,6 @@ func UserToDetailModel(user *entity.User) *UserDetail {
 		UUID:        user.UUID,
 		RoleID:      user.RoleID,
 		Role:        user.Role.Name,
-		Name:        user.Name,
 		Username:    user.Username,
 		Email:       user.Email,
 		ValidatedAt: user.ValidatedAt,
@@ -79,7 +78,6 @@ func UserToModel(user *entity.User) *UserList {
 	return &UserList{
 		ID:       user.ID,
 		UUID:     user.UUID,
-		Name:     user.Name,
 		Username: user.Username,
 		Email:    user.Email,
 		Role:     user.Role.Name,
@@ -100,7 +98,6 @@ func UserInputToEntity(userInput *UserInput) *entity.User {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(userInput.Password), bcrypt.DefaultCost)
 
 	return &entity.User{
-		Name:        userInput.Name,
 		Username:    userInput.Username,
 		Email:       userInput.Email,
 		Password:    string(hashedPassword),
@@ -112,7 +109,6 @@ func UserInputToEntity(userInput *UserInput) *entity.User {
 func UserUpdateInputToEntity(input *UserUpdateInput) *entity.User {
 
 	return &entity.User{
-		Name:     input.Name,
 		Username: input.Username,
 		Email:    input.Email,
 		RoleID:   input.RoleID,

@@ -89,7 +89,7 @@ func (s *authService) Login(ctx context.Context, input *model.LoginInput) helper
 	return helpers.BaseResponse{
 		Status:  fiber.StatusOK,
 		Success: true,
-		Message: fmt.Sprintf("%s user successfully login", user.Name),
+		Message: fmt.Sprintf("%s user successfully login", user.Username),
 		Data: &model.AllToken{
 			RefreshToken: refreshToken,
 			AccessToken:  accessToken,
@@ -234,7 +234,7 @@ func (s *authService) Logout(ctx context.Context, refreshToken string) helpers.B
 	return helpers.BaseResponse{
 		Status:  fiber.StatusOK,
 		Success: true,
-		Message: fmt.Sprintf("%s user successfully logout", user.Name),
+		Message: fmt.Sprintf("%s user successfully logout", user.Username),
 	}
 }
 

@@ -456,18 +456,11 @@ func seedingUserAdmin(tx *gorm.DB) error {
 		return errors.New("admin role not found")
 	}
 
-	birthDate, err := time.Parse("2006-01-02", "2000-04-13")
-	if err != nil {
-		return errors.New("error parsing admin birth date")
-	}
-
 	user := entity.User{
 		UUID:        adminUUID,
-		Name:        "Admin",
 		RoleID:      adminRole.ID,
 		Username:    "admin",
 		Email:       "admin@email.id",
-		BirthDate:   birthDate,
 		Password:    string(hasedPassword),
 		ValidatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 	}
@@ -497,17 +490,11 @@ func seedingUserGuest(tx *gorm.DB) error {
 		return errors.New("user role not found")
 	}
 
-	birthDate, err := time.Parse("2006-01-02", "2000-04-13")
-	if err != nil {
-		return errors.New("error parsing guest birth date")
-	}
 	user := entity.User{
 		UUID:        userUUID,
-		Name:        "User",
 		RoleID:      userRole.ID,
 		Username:    "user",
 		Email:       "user@email.id",
-		BirthDate:   birthDate,
 		Password:    string(hasedPassword),
 		ValidatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 	}
