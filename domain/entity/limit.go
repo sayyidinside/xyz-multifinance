@@ -7,7 +7,7 @@ import (
 )
 
 type Limit struct {
-	ID          uint            `json:"id"`
+	ID          uint            `json:"id" gorm:"primaryKey"`
 	UUID        uuid.UUID       `json:"uuid" gorm:"uniqueIndex;type:char(36)"`
 	UserID      uint            `json:"user_id"`
 	Tenor       uint            `json:"tenor" gorm:"type:smallint unsigned"`
