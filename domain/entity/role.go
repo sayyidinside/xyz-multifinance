@@ -1,17 +1,25 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Role struct {
-	ID          uint          `json:"id" gorm:"primaryKey"`
-	UUID        uuid.UUID     `json:"uuid" gorm:"uniqueIndex;type:char(36)"`
-	Name        string        `json:"name"`
-	IsAdmin     bool          `json:"is_admin" gorm:"default:false"`
-	Permissions *[]Permission `json:"permissions" gorm:"many2many:role_permissions;"`
-	gorm.Model
+	ID      uint      `json:"id" gorm:"primaryKey"`
+	UUID    uuid.UUID `json:"uuid" gorm:"uniqueIndex;type:char(36)"`
+	Name    string    `json:"name" gorm:"size:50;uniqueIndex;not null"`
+	IsAdmin bool      `json:"is_admin" gorm:"default:false"`
+
+	// Relationship
+	Permissions []Permission `json:"permissions" gorm:"many2many:role_permissions;"`
+	Users       []User       `json:"users" gorm:"foreignKey:RoleID"`
+
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }
 
 func (Role) TableName() string {

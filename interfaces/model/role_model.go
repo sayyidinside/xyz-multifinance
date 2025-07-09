@@ -29,7 +29,7 @@ type (
 )
 
 func RoleToDetailModel(role *entity.Role) *RoleDetail {
-	permissions := PermissionToListModels(role.Permissions)
+	permissions := PermissionToListModels(&role.Permissions)
 
 	return &RoleDetail{
 		ID:          role.ID,

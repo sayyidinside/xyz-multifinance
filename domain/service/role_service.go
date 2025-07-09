@@ -110,7 +110,7 @@ func (s *roleService) Create(ctx context.Context, input *model.RoleInput) helper
 		})
 	}
 
-	roleEntity.Permissions = permissions
+	roleEntity.Permissions = *permissions
 
 	if err := s.repository.Insert(ctx, roleEntity); err != nil {
 		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{

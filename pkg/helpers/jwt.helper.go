@@ -37,7 +37,7 @@ func GenerateToken(user *entity.User, expireTime int, secret string, isRefresh b
 		claim["validated_at"] = user.ValidatedAt.Time.Unix()
 
 		var permissions []string
-		for _, permission := range *user.Role.Permissions {
+		for _, permission := range user.Role.Permissions {
 			permissions = append(permissions, permission.Name)
 		}
 
