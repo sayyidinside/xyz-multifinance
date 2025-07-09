@@ -32,7 +32,7 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	redisClient := redis.Connect()
+	redisClient := redis.Connect(config.AppConfig)
 
 	bootstrap.Initialize(
 		app, db, redisClient.CacheClient, redisClient.LockClient,

@@ -13,15 +13,13 @@ type LockClient struct {
 	client *redis.Client
 }
 
-func NewLockClient() *LockClient {
-	cfg := config.AppConfig
-
+func NewLockClient(cfg *config.Config) *LockClient {
 	return &LockClient{
 		client: redis.NewClient(
 			&redis.Options{
 				Addr:     cfg.RedisAddress,
 				Password: cfg.RedisPassword,
-				DB:       0,
+				DB:       1,
 			},
 		),
 	}
