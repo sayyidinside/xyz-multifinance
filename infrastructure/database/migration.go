@@ -9,6 +9,7 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&entity.Module{})
 	db.AutoMigrate(&entity.Permission{})
 	db.AutoMigrate(&entity.Role{})
+	db.AutoMigrate(&entity.RolePermission{})
 	db.AutoMigrate(&entity.User{})
 	db.AutoMigrate(&entity.UserProfile{})
 	db.AutoMigrate(&entity.UserDocument{})

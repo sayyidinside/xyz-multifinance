@@ -1,16 +1,23 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Module struct {
-	ID          uint         `json:"id" gorm:"primaryKey"`
-	UUID        uuid.UUID    `json:"uuid" gorm:"uniqueIndex;type:char(36)"`
-	Name        string       `json:"name"`
+	ID   uint      `json:"id" gorm:"primaryKey"`
+	UUID uuid.UUID `json:"uuid" gorm:"uniqueIndex;type:char(36);not null"`
+	Name string    `json:"name" gorm:"not null"`
+
+	// Relationship
 	Permissions []Permission `json:"permissions" gorm:"foreignKey:ModuleID"`
-	gorm.Model
+
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }
 
 func (Module) TableName() string {
