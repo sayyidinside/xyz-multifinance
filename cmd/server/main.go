@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -11,6 +12,7 @@ import (
 	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/config"
 	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/database"
 	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/redis"
+	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/shutdown"
 	"github.com/sayyidinside/gofiber-clean-fresh/pkg/helpers"
 )
 
@@ -23,18 +25,7 @@ func main() {
 		EnableTrustedProxyCheck: true,
 	})
 
-	// Initialize default config
-	app.Use(logger.New())
-
-	// Add Request ID middleware
-	app.Use(requestid.New())
-
-	app.Use(helpers.APILogger(helpers.GetAPILogger()))
-
-	// Recover panic
-	app.Use(helpers.RecoverWithLog())
-
-	app.Use(helpers.ErrorHelper)
+	configureMiddleware(app)
 
 	db, err := database.Connect()
 	if err != nil {
@@ -47,7 +38,36 @@ func main() {
 		app, db, redisClient.CacheClient, redisClient.LockClient,
 	)
 
-	app.Use(helpers.NotFoundHelper)
+	// Setup graceful shutdown
+	shutdownHandler := shutdown.NewShutdownHandler(
+		app,
+		db,
+		redisClient,
+	).WithTimeout(20 * time.Second)
 
-	app.Listen(fmt.Sprintf(":%s", config.AppConfig.Port))
+	go func() {
+		if err := app.Listen(fmt.Sprintf(":%s", config.AppConfig.Port)); err != nil {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
+
+	// Block main thread until shutdown signal
+	shutdownHandler.ListenForShutdown()
+}
+
+func configureMiddleware(app *fiber.App) {
+	// Initialize default config
+	app.Use(logger.New())
+
+	// Add Request ID middleware
+	app.Use(requestid.New())
+
+	app.Use(helpers.APILogger(helpers.GetAPILogger()))
+
+	// Recover panic
+	app.Use(helpers.RecoverWithLog())
+
+	// Error helper
+	app.Use(helpers.ErrorHelper)
+	app.Use(helpers.NotFoundHelper)
 }
