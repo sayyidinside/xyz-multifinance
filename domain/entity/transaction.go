@@ -19,13 +19,13 @@ type Transaction struct {
 	UUID             uuid.UUID         `json:"uuid" gorm:"uniqueIndex;type:char(36)"`
 	UserID           uint              `json:"user_id"`
 	AssetName        string            `json:"asset_name"`
-	ContractNumber   string            `json:"contract_number" gorm:"uniqueIndex"`
+	ContractNumber   string            `json:"contract_number" gorm:"type:varchar(255);uniqueIndex"`
 	OnTheRoad        decimal.Decimal   `json:"on_the_road" gorm:"type:decimal(20,2)"`
 	AdminFee         decimal.Decimal   `json:"admin_fee" gorm:"type:decimal(20,2)"`
 	InstalmentAmount decimal.Decimal   `json:"instalment_amount" gorm:"type:decimal(20,2)"`
 	InterestAmount   decimal.Decimal   `json:"interest_amount" gorm:"type:decimal(20,2)"`
 	Tenor            uint              `json:"tenor" gorm:"type:smallint unsigned"`
-	Status           TransactionStatus `gorm:"type:transaction_status;default:'active'"`
+	Status           TransactionStatus `gorm:"type:enum('active', 'paid', 'canceled');default:'active'"`
 	User             User              `json:"user" gorm:"foreignKey:UserID"`
 	gorm.Model
 }
