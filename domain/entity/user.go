@@ -17,7 +17,7 @@ type User struct {
 	Name         string              `json:"name"`
 	LegalName    string              `json:"legal_name"`
 	Email        string              `json:"email" gorm:"index"`
-	Nik          string              `json:"nik" gorm:"index;type:varchar(16)"`
+	Nik          string              `json:"nik" gorm:"unique;uniqueIndex;type:varchar(16)"`
 	BirthPlace   string              `json:"birth_place"`
 	BirthDate    time.Time           `json:"birth_date" gorm:"type:date"`
 	Password     string              `json:"password"`
