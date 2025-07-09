@@ -4,11 +4,11 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/redis/go-redis/v9"
 	"github.com/sayyidinside/gofiber-clean-fresh/cmd/worker"
 	"github.com/sayyidinside/gofiber-clean-fresh/domain/repository"
 	"github.com/sayyidinside/gofiber-clean-fresh/domain/service"
 	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/config"
+	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/redis"
 	"github.com/sayyidinside/gofiber-clean-fresh/interfaces/http/handler"
 	"github.com/sayyidinside/gofiber-clean-fresh/interfaces/http/middleware"
 	"github.com/sayyidinside/gofiber-clean-fresh/interfaces/http/routes"
@@ -16,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.Client, lockRedis *redis.Client) {
+func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lockRedis *redis.LockClient) {
 	// Repositories
 	userRepo := repository.NewUserRepository(db)
 	permissionRepo := repository.NewPermissionRepository(db)

@@ -1,18 +1,13 @@
 package redis
 
-import "github.com/redis/go-redis/v9"
-
 type RedisClient struct {
-	CacheClient *redis.Client
-	LockClient  *redis.Client
+	CacheClient *CacheClient
+	LockClient  *LockClient
 }
 
 func Connect() *RedisClient {
-	cacheClient := NewCacheClient()
-	lockClient := NewLockClient()
-
 	return &RedisClient{
-		CacheClient: cacheClient.client,
-		LockClient:  lockClient.client,
+		CacheClient: NewCacheClient(),
+		LockClient:  NewLockClient(),
 	}
 }
