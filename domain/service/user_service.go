@@ -19,6 +19,7 @@ type UserService interface {
 	UpdateByID(ctx context.Context, input *model.UserUpdateInput, id uint) helpers.BaseResponse
 	ChangePassByID(ctx context.Context, input *model.ChangePasswordInput, id uint) helpers.BaseResponse
 	DeleteByID(ctx context.Context, id uint) helpers.BaseResponse
+	SuspendByUUID(ctx context.Context, uuid uuid.UUID) helpers.BaseResponse
 }
 
 type userService struct {
@@ -267,6 +268,36 @@ func (s *userService) DeleteByID(ctx context.Context, id uint) helpers.BaseRespo
 		Status:  fiber.StatusOK,
 		Success: true,
 		Message: "User successfully deleted",
+	})
+}
+
+func (s *userService) SuspendByUUID(ctx context.Context, uuid uuid.UUID) helpers.BaseResponse {
+	logData := helpers.CreateLog(s)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	user, err := s.repository.FindByUUID(ctx, uuid)
+	if err != nil || user == nil {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusNotFound,
+			Success: false,
+			Message: "User not found",
+			Errors:  err,
+		})
+	}
+
+	if err := s.repository.Delete(ctx, user); err != nil {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusInternalServerError,
+			Success: false,
+			Message: "Error deleting data",
+			Errors:  err,
+		})
+	}
+
+	return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+		Status:  fiber.StatusOK,
+		Success: true,
+		Message: "User successfully suspended",
 	})
 }
 

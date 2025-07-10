@@ -16,6 +16,7 @@ type (
 		UUID         uuid.UUID           `json:"uuid"`
 		RoleID       uint                `json:"role_id"`
 		Role         string              `json:"role"`
+		Name         string              `json:"name"`
 		Username     string              `json:"username"`
 		Email        string              `json:"email"`
 		ValidatedAt  sql.NullTime        `json:"validated_at"`
@@ -91,16 +92,30 @@ type (
 )
 
 func UserToDetailModel(user *entity.User) *UserDetail {
+	var profileName string
+	var profile *UserProfileDetail
+	var document *UserDocumentDetail
+
+	if user.Profile != nil {
+		profileName = user.Profile.Name
+		profile = UserProfileToDetailModel(user.Profile)
+	}
+
+	if user.Document != nil {
+		document = UserDocumentToDetailModel(user.Document)
+	}
+
 	return &UserDetail{
 		ID:           user.ID,
 		UUID:         user.UUID,
 		RoleID:       user.RoleID,
 		Role:         user.Role.Name,
+		Name:         profileName,
 		Username:     user.Username,
 		Email:        user.Email,
 		ValidatedAt:  user.ValidatedAt,
-		Profile:      UserProfileToDetailModel(user.Profile),
-		Document:     UserDocumentToDetailModel(user.Document),
+		Profile:      profile,
+		Document:     document,
 		Limits:       LimitToListModels(user.Limits),
 		Transactions: TransactionToListModels(user.Transactions),
 		CreatedAt:    user.CreatedAt,

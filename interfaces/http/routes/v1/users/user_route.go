@@ -12,7 +12,7 @@ func RegisterUserRoutes(route fiber.Router, handler handler.UserHandler) {
 	user.Use(middleware.Authentication())
 
 	user.Get(
-		"/:id",
+		"/:uuid",
 		middleware.Authorization(false, false, []string{
 			"View User",
 			"Create User",
@@ -55,11 +55,11 @@ func RegisterUserRoutes(route fiber.Router, handler handler.UserHandler) {
 		handler.UpdateUser,
 	)
 
-	user.Delete(
-		"/:id",
-		middleware.Authorization(false, false, []string{
+	user.Post(
+		"/suspend/:uuid",
+		middleware.Authorization(true, true, []string{
 			"Delete User",
 		}),
-		handler.DeleteUser,
+		handler.SuspendUser,
 	)
 }

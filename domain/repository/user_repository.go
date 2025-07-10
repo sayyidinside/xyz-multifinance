@@ -46,6 +46,7 @@ func (r *userRepository) FindByID(ctx context.Context, id uint) (*entity.User, e
 		Preload("Role", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name").Unscoped()
 		}).
+		Preload("Profile").Preload("Document").
 		Find(&user)
 
 	if result.Error != nil || result.RowsAffected == 0 {
@@ -66,6 +67,7 @@ func (r *userRepository) FindByUUID(ctx context.Context, uuid uuid.UUID) (*entit
 		Preload("Role", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name").Unscoped()
 		}).
+		Preload("Profile").Preload("Document").
 		Find(&user); result.Error != nil || result.RowsAffected == 0 {
 		logData.Message = "Not Passed"
 		logData.Err = result.Error
