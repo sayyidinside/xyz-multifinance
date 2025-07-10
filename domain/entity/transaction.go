@@ -17,7 +17,7 @@ type Transaction struct {
 	ContractNumber     string            `json:"contract_number" gorm:"type:varchar(255);uniqueIndex;not null"`
 	OnTheRoad          decimal.Decimal   `json:"on_the_road" gorm:"type:decimal(20,2);not null"`
 	AdminFee           decimal.Decimal   `json:"admin_fee" gorm:"type:decimal(20,2);not null"`
-	TotalLoanAmount    decimal.Decimal   `json:"total_loan_amount" gorm:"->;type:decimal(20,2) GENERATED ALWAYS AS (on_the_road + admin_fee) STORE"`
+	TotalLoanAmount    decimal.Decimal   `json:"total_loan_amount" gorm:"->;type:decimal(20,2) GENERATED ALWAYS AS (on_the_road + admin_fee) STORED"`
 	MonthlyInstallment decimal.Decimal   `json:"monthly_installment" gorm:"type:decimal(20,2);not null"`
 	InterestAmount     decimal.Decimal   `json:"interest_amount" gorm:"type:decimal(20,2);not null"`
 	Tenor              uint              `json:"tenor" gorm:"type:smallint unsigned;not null"`
