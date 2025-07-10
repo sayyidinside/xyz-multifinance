@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterUserRoutes(route fiber.Router, handler handler.UserHandler) {
-	user := route.Group("/informations")
+	user := route.Group("/data")
 
 	user.Use(middleware.Authentication())
 
