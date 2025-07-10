@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/sayyidinside/gofiber-clean-fresh/domain/entity"
 	"github.com/sayyidinside/gofiber-clean-fresh/infrastructure/config"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -412,7 +411,7 @@ func seedingRoleAdmin(tx *gorm.DB) error {
 	tx.Model(&entity.Permission{}).Find(&permissions)
 
 	// Append all permissions to many to many table "role_permissions"
-	tx.Model(&adminRole).Association("permissions").Append(&permissions)
+	tx.Model(&adminRole).Association("Permissions").Append(&permissions)
 
 	return nil
 }
@@ -433,6 +432,13 @@ func seedingRoleGuest(tx *gorm.DB) error {
 		return err
 	}
 
+	// Get permission that user could use
+	var permissions []entity.Permission
+	tx.Model(&entity.Permission{}).Where("name IN ?", []string{"View User", "Update User"}).Find(&permissions)
+
+	// Append related permissions to many to many table "role_permissions"
+	tx.Model(&userRole).Association("Permissions").Append(&permissions)
+
 	return nil
 }
 
@@ -441,11 +447,6 @@ func seedingUserAdmin(tx *gorm.DB) error {
 
 	// Set few value for user admin
 	adminUUID, err := uuid.Parse("3685f6bf-8a3d-46de-a89d-ed901f90a7ad")
-	if err != nil {
-		return err
-	}
-
-	hasedPassword, err := bcrypt.GenerateFromPassword([]byte(cfg.AdminPass), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
@@ -461,7 +462,7 @@ func seedingUserAdmin(tx *gorm.DB) error {
 		RoleID:      adminRole.ID,
 		Username:    "admin",
 		Email:       "admin@email.id",
-		Password:    string(hasedPassword),
+		Password:    cfg.AdminPass,
 		ValidatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 	}
 
@@ -479,11 +480,6 @@ func seedingUserGuest(tx *gorm.DB) error {
 		return err
 	}
 
-	hasedPassword, err := bcrypt.GenerateFromPassword([]byte("1234"), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
 	// Find guest role
 	var userRole entity.Role
 	if result := tx.Limit(1).Where("name = ?", "user").Find(&userRole); result.RowsAffected == 0 {
@@ -495,7 +491,7 @@ func seedingUserGuest(tx *gorm.DB) error {
 		RoleID:      userRole.ID,
 		Username:    "user",
 		Email:       "user@email.id",
-		Password:    string(hasedPassword),
+		Password:    "1234567",
 		ValidatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 	}
 
