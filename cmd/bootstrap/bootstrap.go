@@ -23,6 +23,7 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 	moduleRepo := repository.NewModuleRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
+	profileRepo := repository.NewProfileRepository(db)
 
 	// Service
 	userService := service.NewUserService(userRepo, roleRepo)
@@ -31,6 +32,7 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 	roleService := service.NewRoleService(roleRepo, permissionRepo)
 	authService := service.NewAuthService(refreshTokenRepo, userRepo)
 	registrationService := service.NewRegistrationService(userRepo, roleRepo)
+	profileService := service.NewProfileService(userRepo, profileRepo)
 
 	// Handler
 	userHandler := handler.NewUserHandler(userService)
@@ -39,6 +41,7 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 	roleHandler := handler.NewRoleHandler(roleService)
 	authHandler := handler.NewAuthHandler(authService)
 	registrationHandler := handler.NewRegistrationHandler(registrationService)
+	profileHandler := handler.NewProfileHandler(profileService)
 
 	// Setup handler to send to routes setup
 	handler := &handler.Handlers{
@@ -47,6 +50,7 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 			PermissionHandler: permissionHandler,
 			ModuleHandler:     moduleHandler,
 			RoleHandler:       roleHandler,
+			ProfileHandler:    profileHandler,
 		},
 		AuthHandler:         authHandler,
 		RegistrationHandler: registrationHandler,

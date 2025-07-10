@@ -5,6 +5,7 @@ type UserManagementHandler struct {
 	PermissionHandler PermissionHandler
 	ModuleHandler     ModuleHandler
 	RoleHandler       RoleHandler
+	ProfileHandler    ProfileHandler
 }
 
 type Handlers struct {
