@@ -109,10 +109,16 @@ func UserToDetailModel(user *entity.User) *UserDetail {
 }
 
 func UserToModel(user *entity.User) *UserList {
+	var profileName string
+
+	if user.Profile != nil {
+		profileName = user.Profile.Name
+	}
+
 	return &UserList{
 		ID:       user.ID,
 		UUID:     user.UUID,
-		Name:     user.Profile.Name,
+		Name:     profileName,
 		Username: user.Username,
 		Email:    user.Email,
 		Role:     user.Role.Name,
