@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -80,7 +79,6 @@ func Authentication() fiber.Handler {
 
 		validated, ok := claim["validated"].(bool)
 		if !ok {
-			log.Println("validated")
 			return helpers.ResponseFormatter(c, helpers.BaseResponse{
 				Status:  fiber.StatusUnauthorized,
 				Success: false,
@@ -90,7 +88,6 @@ func Authentication() fiber.Handler {
 
 		validated_at, ok := claim["validated_at"].(float64)
 		if !ok {
-			log.Println("validated_at")
 			return helpers.ResponseFormatter(c, helpers.BaseResponse{
 				Status:  fiber.StatusUnauthorized,
 				Success: false,
