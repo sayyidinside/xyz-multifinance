@@ -10,4 +10,5 @@ type UserManagementHandler struct {
 type Handlers struct {
 	UserManagementHandler *UserManagementHandler
 	AuthHandler           AuthHandler
+	RegistrationHandler   RegistrationHandler
 }

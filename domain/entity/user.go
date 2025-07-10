@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -39,5 +40,8 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	if u.UUID == uuid.Nil {
 		u.UUID = uuid.New()
 	}
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	u.Password = string(hashedPassword)
 	return
 }

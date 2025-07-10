@@ -445,12 +445,12 @@ func CreateLogSystem23(ctx context.Context, logData *Log) {
 		logSysData.Username = username
 	}
 
-	duration := FormatDuration(logSysData.StartTime, logSysData.EndTime)
+	// duration := FormatDuration(logSysData.StartTime, logSysData.EndTime)
 
 	// Log debug waktu start dan end
-	log.Printf("Log for %s - StartTime: %s, EndTime: %s, Duration: %s\n",
-		logSysData.Location, logData.StartTime.Format(time.RFC3339), logSysData.EndTime.Format(time.RFC3339), duration)
-	log.Println("=============================================================")
+	// log.Printf("Log for %s - StartTime: %s, EndTime: %s, Duration: %s\n",
+	// 	logSysData.Location, logData.StartTime.Format(time.RFC3339), logSysData.EndTime.Format(time.RFC3339), duration)
+	// log.Println("=============================================================")
 
 	// LogSysChannel could be where your logs are processed
 	LogSysChannel <- logSysData

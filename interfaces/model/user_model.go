@@ -41,6 +41,26 @@ type (
 		Role     string    `json:"role"`
 	}
 
+	RegistrationDetailModel struct {
+		ID          uint         `json:"id"`
+		UUID        uuid.UUID    `json:"uuid"`
+		Username    string       `json:"username"`
+		Email       string       `json:"email"`
+		ValidatedAt sql.NullTime `json:"validated_at"`
+		Role        string       `json:"role"`
+		CreatedAt   time.Time    `json:"created_at"`
+		UpdatedAt   time.Time    `json:"updated_at"`
+	}
+
+	RegistrationList struct {
+		ID          uint         `json:"id"`
+		UUID        uuid.UUID    `json:"uuid"`
+		Username    string       `json:"username"`
+		Email       string       `json:"email"`
+		ValidatedAt sql.NullTime `json:"validated_at"`
+		Role        string       `json:"role"`
+	}
+
 	UserInput struct {
 		Name       string `json:"name" form:"name" validate:"required"`
 		Username   string `json:"username" form:"username" validate:"required"`
@@ -48,6 +68,13 @@ type (
 		Password   string `json:"password" form:"password" validate:"required"`
 		RePassword string `json:"repassword" form:"repassword" validate:"required,eqfield=Password"`
 		RoleID     uint   `json:"role_id" form:"role_id" validate:"required"`
+	}
+
+	UserRegisterInput struct {
+		Username   string `json:"username" form:"username" validate:"required"`
+		Email      string `json:"email" form:"email" validate:"required"`
+		Password   string `json:"password" form:"password" validate:"required"`
+		RePassword string `json:"repassword" form:"repassword" validate:"required,eqfield=Password"`
 	}
 
 	UserUpdateInput struct {
@@ -102,6 +129,38 @@ func UserToListModel(users *[]entity.User) *[]UserList {
 	return &listUsers
 }
 
+func RegistrationToDetailModel(user *entity.User) *RegistrationDetailModel {
+	return &RegistrationDetailModel{
+		ID:          user.ID,
+		UUID:        user.UUID,
+		Username:    user.Username,
+		Email:       user.Email,
+		ValidatedAt: user.ValidatedAt,
+		Role:        user.Role.Name,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+	}
+}
+
+func RegistrationToListModel(user *entity.User) *RegistrationList {
+	return &RegistrationList{
+		ID:          user.ID,
+		UUID:        user.UUID,
+		Username:    user.Username,
+		Email:       user.Email,
+		ValidatedAt: user.ValidatedAt,
+		Role:        user.Role.Name,
+	}
+}
+
+func RegistrationToListModels(users *[]entity.User) (listModels []RegistrationList) {
+	for _, registration := range *users {
+		listModels = append(listModels, *RegistrationToListModel(&registration))
+	}
+
+	return
+}
+
 func UserInputToEntity(userInput *UserInput) *entity.User {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(userInput.Password), bcrypt.DefaultCost)
 
@@ -120,6 +179,14 @@ func UserUpdateInputToEntity(input *UserUpdateInput) *entity.User {
 		Username: input.Username,
 		Email:    input.Email,
 		RoleID:   input.RoleID,
+	}
+}
+
+func (input *UserRegisterInput) ToEntity() *entity.User {
+	return &entity.User{
+		Username: input.Username,
+		Email:    input.Email,
+		Password: input.Password,
 	}
 }
 
@@ -151,6 +218,15 @@ func SanitizeUserUpdateInput(input *UserUpdateInput) {
 func SanitizeChangePasswordInput(input *ChangePasswordInput) {
 	sanitizer := bluemonday.StrictPolicy()
 
+	input.Password = sanitizer.Sanitize(input.Password)
+	input.RePassword = sanitizer.Sanitize(input.RePassword)
+}
+
+func (input *UserRegisterInput) Sanitize() {
+	sanitizer := bluemonday.StrictPolicy()
+
+	input.Username = sanitizer.Sanitize(input.Username)
+	input.Email = sanitizer.Sanitize(input.Email)
 	input.Password = sanitizer.Sanitize(input.Password)
 	input.RePassword = sanitizer.Sanitize(input.RePassword)
 }

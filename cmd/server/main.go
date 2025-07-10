@@ -51,6 +51,9 @@ func main() {
 		}
 	}()
 
+	// Not Found Resource Error Helper
+	app.Use(helpers.NotFoundHelper)
+
 	// Block main thread until shutdown signal
 	shutdownHandler.ListenForShutdown()
 }
@@ -69,5 +72,4 @@ func configureMiddleware(app *fiber.App) {
 
 	// Error helper
 	app.Use(helpers.ErrorHelper)
-	app.Use(helpers.NotFoundHelper)
 }
