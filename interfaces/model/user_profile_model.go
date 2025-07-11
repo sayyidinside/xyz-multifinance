@@ -21,12 +21,12 @@ type (
 	}
 
 	UserProfileUpdate struct {
-		Name       string `json:"name"`
-		LegalName  string `json:"legal_name"`
-		Nik        string `json:"nik"`
-		BirthPlace string `json:"birth_place"`
-		BirthDate  string `json:"birth_date"`
-		Salary     string `json:"salary"`
+		Name       string `json:"name" form:"name" xml:"name" validate:"required"`
+		LegalName  string `json:"legal_name" form:"legal_name" xml:"legal_name" validate:"required"`
+		Nik        string `json:"nik" form:"nik" xml:"nik" validate:"required,len=16"`
+		BirthPlace string `json:"birth_place" form:"birth_place" xml:"birth_place" validate:"required"`
+		BirthDate  string `json:"birth_date" form:"birth_date" xml:"birth_date" validate:"required,datetime=2006-01-02"`
+		Salary     string `json:"salary" form:"salary" xml:"salary" validate:"required,numeric,gte=0"`
 	}
 )
 
