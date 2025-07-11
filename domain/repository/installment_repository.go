@@ -22,6 +22,7 @@ type InstallmentRepository interface {
 	InsertWithTransaction(ctx context.Context, tx *gorm.DB, installment *entity.TransactionInstallment) error
 	UpdateWithTransaction(ctx context.Context, tx *gorm.DB, installment *entity.TransactionInstallment) error
 	DeleteWithTransaction(ctx context.Context, tx *gorm.DB, installment *entity.TransactionInstallment) error
+	CancelWithTransaction(ctx context.Context, tx *gorm.DB, transaction_id uint) error
 }
 
 type installmentRepository struct {
@@ -199,6 +200,21 @@ func (r *installmentRepository) UpdateWithTransaction(ctx context.Context, tx *g
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
 	if err := tx.WithContext(ctx).Where("id = ?", transaction.ID).Updates(transaction).
+		Error; err != nil {
+		logData.Err = err
+		logData.Message = "Not Passed"
+		return err
+	}
+
+	return nil
+}
+
+func (r *installmentRepository) CancelWithTransaction(ctx context.Context, tx *gorm.DB, transaction_id uint) error {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	if err := tx.WithContext(ctx).Where("transaction_id = ? AND payment_status IN ?", transaction_id, []string{"pending", "partial", "overdue"}).
+		Updates(entity.TransactionInstallment{PaymentStatus: entity.PaymentStatusFailed}).
 		Error; err != nil {
 		logData.Err = err
 		logData.Message = "Not Passed"

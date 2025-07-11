@@ -9,4 +9,5 @@ func RegisterRoutes(route fiber.Router, handler *handler.TransactionManagementHa
 	transactions := route.Group("/transactions/")
 
 	RegisterLimitRoutes(transactions, handler.LimitHandler)
+	RegisterTransactionRoutes(transactions, handler.TransactionHandler)
 }

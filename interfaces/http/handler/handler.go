@@ -9,7 +9,8 @@ type UserManagementHandler struct {
 }
 
 type TransactionManagementHandler struct {
-	LimitHandler LimitHandler
+	LimitHandler       LimitHandler
+	TransactionHandler TransactionHandler
 }
 
 type Handlers struct {

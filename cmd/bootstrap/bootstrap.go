@@ -25,6 +25,8 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 	profileRepo := repository.NewProfileRepository(db)
 	limitRepo := repository.NewLimitRepository(db)
+	transactionRepo := repository.NewTransactionRepository(db)
+	installmentRepo := repository.NewIntallmentRepository(db)
 
 	// Service
 	userService := service.NewUserService(userRepo, roleRepo)
@@ -35,6 +37,7 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 	registrationService := service.NewRegistrationService(userRepo, roleRepo, limitRepo)
 	profileService := service.NewProfileService(userRepo, profileRepo)
 	limitService := service.NewLimitService(userRepo, limitRepo)
+	transactionService := service.NewTransactionService(transactionRepo, userRepo, limitRepo, installmentRepo, lockRedis)
 
 	// Handler
 	userHandler := handler.NewUserHandler(userService)
@@ -45,6 +48,7 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 	registrationHandler := handler.NewRegistrationHandler(registrationService)
 	profileHandler := handler.NewProfileHandler(profileService)
 	limitHandler := handler.NewLimitHandler(limitService)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	// Setup handler to send to routes setup
 	handler := &handler.Handlers{
@@ -56,7 +60,8 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 			ProfileHandler:    profileHandler,
 		},
 		TransactionManagementHandler: &handler.TransactionManagementHandler{
-			LimitHandler: limitHandler,
+			LimitHandler:       limitHandler,
+			TransactionHandler: transactionHandler,
 		},
 		AuthHandler:         authHandler,
 		RegistrationHandler: registrationHandler,

@@ -40,7 +40,7 @@ func (r *transactionRepository) FindByUUID(ctx context.Context, uuid uuid.UUID) 
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
 	if result := r.DB.WithContext(ctx).Limit(1).Where("uuid = ?", uuid).
-		Preload("Installments").Preload("Payments").
+		Preload("User").Preload("User.Profile").Preload("Installments").Preload("Payments").
 		Find(&transaction); result.Error != nil || result.RowsAffected == 0 {
 		logData.Message = "Not Passed"
 		logData.Err = result.Error
@@ -54,7 +54,8 @@ func (r *transactionRepository) FindAll(ctx context.Context, query *model.QueryG
 	logData := helpers.CreateLog(r)
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{})
+	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{}).
+		Preload("User").Preload("User.Profile")
 
 	var allowedFields = map[string]string{
 		"created": "transactions.created_at",
@@ -81,7 +82,8 @@ func (r *transactionRepository) FindAllByUserID(ctx context.Context, query *mode
 	logData := helpers.CreateLog(r)
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{}).Where("user_id = ?", user_id)
+	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{}).Where("user_id = ?", user_id).
+		Preload("User").Preload("User.Profile")
 
 	var allowedFields = map[string]string{
 		"created": "transactions.created_at",

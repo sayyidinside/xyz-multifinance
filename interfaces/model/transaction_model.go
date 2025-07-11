@@ -49,13 +49,12 @@ type (
 	}
 
 	TransactionInput struct {
-		AssetName          string `json:"asset_name" form:"asset_name" xml:"asset_name" validate:"required"`
-		ContractNumber     string `json:"customer_number" form:"customer_number" xml:"customer_number" validate:"required,numeric"`
-		OnTheRoad          string `json:"on_the_road" form:"on_the_road" xml:"on_the_road" validate:"required,numeric"`
-		AdminFee           string `json:"admin_fee" form:"admin_fee" xml:"admin_fee" validate:"required,numeric"`
-		MonthlyInstallment string `json:"installment_amount" form:"installment_amount" xml:"installment_amount" validate:"required,numeric"`
-		InterestAmount     string `json:"interest_amount" form:"interest_amount" xml:"interest_amount" validate:"required,numeric"`
-		Tenor              uint   `json:"tenor" form:"tenor" xml:"tenor" validate:"required"`
+		AssetName      string `json:"asset_name" form:"asset_name" xml:"asset_name" validate:"required"`
+		ContractNumber string `json:"contract_number" form:"contract_number" xml:"contract_number" validate:"required"`
+		OnTheRoad      string `json:"on_the_road" form:"on_the_road" xml:"on_the_road" validate:"required,numeric"`
+		AdminFee       string `json:"admin_fee" form:"admin_fee" xml:"admin_fee" validate:"required,numeric"`
+		InterestAmount string `json:"interest_amount" form:"interest_amount" xml:"interest_amount" validate:"required,numeric"`
+		Tenor          uint   `json:"tenor" form:"tenor" xml:"tenor" validate:"required"`
 	}
 )
 
@@ -118,14 +117,12 @@ func (input *TransactionInput) ToEntity() (*entity.Transaction, error) {
 	if err != nil {
 		return nil, err
 	}
-	monthly_decimal, err := decimal.NewFromString(input.MonthlyInstallment)
-	if err != nil {
-		return nil, err
-	}
 	interest_decimal, err := decimal.NewFromString(input.InterestAmount)
 	if err != nil {
 		return nil, err
 	}
+	tenor_decimal := decimal.NewFromUint64(uint64(input.Tenor))
+	monthly_decimal := ((otr_decimal.Add(admin_decimal)).Div(tenor_decimal)).Add(interest_decimal)
 
 	return &entity.Transaction{
 		AssetName:          input.AssetName,
@@ -134,6 +131,8 @@ func (input *TransactionInput) ToEntity() (*entity.Transaction, error) {
 		AdminFee:           admin_decimal,
 		MonthlyInstallment: monthly_decimal,
 		InterestAmount:     interest_decimal,
+		StartDate:          time.Now(),
+		EndDate:            time.Now().AddDate(0, int(input.Tenor), 1),
 		Tenor:              input.Tenor,
 	}, nil
 }
@@ -145,6 +144,5 @@ func (input *TransactionInput) Sanitize() {
 	input.ContractNumber = sanitizer.Sanitize(input.ContractNumber)
 	input.OnTheRoad = sanitizer.Sanitize(input.OnTheRoad)
 	input.AdminFee = sanitizer.Sanitize(input.AdminFee)
-	input.MonthlyInstallment = sanitizer.Sanitize(input.MonthlyInstallment)
 	input.InterestAmount = sanitizer.Sanitize(input.InterestAmount)
 }

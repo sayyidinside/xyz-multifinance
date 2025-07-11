@@ -22,6 +22,7 @@ type LimitRepository interface {
 	Insert(ctx context.Context, limit *entity.Limit) error
 	BulkInsertWithTransaction(ctx context.Context, tx *gorm.DB, limits []entity.Limit) error
 	Update(ctx context.Context, limit *entity.Limit) error
+	BulkUpdateWithTransaction(ctx context.Context, tx *gorm.DB, limits []entity.Limit) error
 	Delete(ctx context.Context, limit *entity.Limit) error
 }
 
@@ -232,6 +233,30 @@ func (r *limitRepository) Update(ctx context.Context, limit *entity.Limit) error
 		return err
 	}
 	return nil
+}
+
+func (r *limitRepository) BulkUpdateWithTransaction(ctx context.Context, tx *gorm.DB, limits []entity.Limit) error {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	if len(limits) == 0 {
+		return nil
+	}
+
+	query := "UPDATE limits SET current_limit = CASE id "
+	params := []interface{}{}
+	ids := make([]uint, 0, len(limits))
+
+	for _, limit := range limits {
+		query += "WHEN ? THEN ? "
+		params = append(params, limit.ID, limit.CurrentLimit)
+		ids = append(ids, limit.ID)
+	}
+
+	query += "END WHERE id IN (?)"
+	params = append(params, ids)
+
+	return tx.WithContext(ctx).Exec(query, params...).Error
 }
 
 func (r *limitRepository) Delete(ctx context.Context, limit *entity.Limit) error {

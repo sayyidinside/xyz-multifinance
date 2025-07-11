@@ -14,7 +14,7 @@ type Transaction struct {
 	UUID               uuid.UUID         `json:"uuid" gorm:"uniqueIndex;type:char(36);not null"`
 	UserID             uint              `json:"user_id" gorm:"index;not null"`
 	AssetName          string            `json:"asset_name" gorm:"not null"`
-	ContractNumber     string            `json:"contract_number" gorm:"type:varchar(255);uniqueIndex;not null"`
+	ContractNumber     string            `json:"contract_number" gorm:"type:varchar(255);index;not null"`
 	OnTheRoad          decimal.Decimal   `json:"on_the_road" gorm:"type:decimal(20,2);not null"`
 	AdminFee           decimal.Decimal   `json:"admin_fee" gorm:"type:decimal(20,2);not null"`
 	TotalLoanAmount    decimal.Decimal   `json:"total_loan_amount" gorm:"->;type:decimal(20,2) GENERATED ALWAYS AS (on_the_road + admin_fee) STORED"`
