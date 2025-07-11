@@ -281,9 +281,9 @@ func (s *registrationService) ValidateEntityInput(ctx context.Context, user *ent
 func (s *registrationService) generateUserLimit(ctx context.Context, tx *gorm.DB, user_id uint) error {
 	limits := []entity.Limit{
 		{UserID: user_id, Tenor: 1, OriginalLimit: decimal.NewFromInt(100000), CurrentLimit: decimal.NewFromInt(100000)},
-		{UserID: user_id, Tenor: 2, OriginalLimit: decimal.NewFromInt(100000), CurrentLimit: decimal.NewFromInt(100000)},
-		{UserID: user_id, Tenor: 3, OriginalLimit: decimal.NewFromInt(100000), CurrentLimit: decimal.NewFromInt(100000)},
-		{UserID: user_id, Tenor: 6, OriginalLimit: decimal.NewFromInt(100000), CurrentLimit: decimal.NewFromInt(100000)},
+		{UserID: user_id, Tenor: 2, OriginalLimit: decimal.NewFromInt(200000), CurrentLimit: decimal.NewFromInt(100000)},
+		{UserID: user_id, Tenor: 3, OriginalLimit: decimal.NewFromInt(500000), CurrentLimit: decimal.NewFromInt(100000)},
+		{UserID: user_id, Tenor: 6, OriginalLimit: decimal.NewFromInt(700000), CurrentLimit: decimal.NewFromInt(100000)},
 	}
 	if err := s.limitRepository.BulkInsertWithTransaction(ctx, tx, limits); err != nil {
 		return err
