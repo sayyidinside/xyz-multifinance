@@ -24,6 +24,7 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 	roleRepo := repository.NewRoleRepository(db)
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 	profileRepo := repository.NewProfileRepository(db)
+	limitRepo := repository.NewLimitRepository(db)
 
 	// Service
 	userService := service.NewUserService(userRepo, roleRepo)
@@ -31,7 +32,7 @@ func Initialize(app *fiber.App, db *gorm.DB, cacheRedis *redis.CacheClient, lock
 	moduleService := service.NewModuleService(moduleRepo)
 	roleService := service.NewRoleService(roleRepo, permissionRepo)
 	authService := service.NewAuthService(refreshTokenRepo, userRepo)
-	registrationService := service.NewRegistrationService(userRepo, roleRepo)
+	registrationService := service.NewRegistrationService(userRepo, roleRepo, limitRepo)
 	profileService := service.NewProfileService(userRepo, profileRepo)
 
 	// Handler

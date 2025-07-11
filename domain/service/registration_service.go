@@ -12,6 +12,8 @@ import (
 	"github.com/sayyidinside/gofiber-clean-fresh/domain/repository"
 	"github.com/sayyidinside/gofiber-clean-fresh/interfaces/model"
 	"github.com/sayyidinside/gofiber-clean-fresh/pkg/helpers"
+	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type RegistrationService interface {
@@ -22,14 +24,19 @@ type RegistrationService interface {
 }
 
 type registrationService struct {
-	repository     repository.UserRepository
-	roleRepository repository.RoleRepository
+	repository      repository.UserRepository
+	roleRepository  repository.RoleRepository
+	limitRepository repository.LimitRepository
 }
 
-func NewRegistrationService(repository repository.UserRepository, roleRepository repository.RoleRepository) RegistrationService {
+func NewRegistrationService(
+	repository repository.UserRepository, roleRepository repository.RoleRepository,
+	limitRepository repository.LimitRepository,
+) RegistrationService {
 	return &registrationService{
-		repository:     repository,
-		roleRepository: roleRepository,
+		repository:      repository,
+		roleRepository:  roleRepository,
+		limitRepository: limitRepository,
 	}
 }
 
@@ -159,6 +166,9 @@ func (s *registrationService) Activate(ctx context.Context, uuid uuid.UUID) help
 	user.ValidatedAt = sql.NullTime{Valid: true, Time: time.Now()}
 	user.UpdatedAt = time.Now()
 
+	tx := s.limitRepository.BeginTransaction(ctx)
+	defer tx.Rollback()
+
 	if err := s.repository.Update(ctx, user); err != nil {
 		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
 			Status:  fiber.StatusInternalServerError,
@@ -168,6 +178,16 @@ func (s *registrationService) Activate(ctx context.Context, uuid uuid.UUID) help
 		})
 	}
 
+	if err := s.generateUserLimit(ctx, tx, user.ID); err != nil {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusInternalServerError,
+			Success: false,
+			Message: "Error generating user installment limit",
+			Errors:  err,
+		})
+	}
+
+	tx.Commit()
 	return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
 		Status:  fiber.StatusOK,
 		Success: true,
@@ -255,5 +275,19 @@ func (s *registrationService) ValidateEntityInput(ctx context.Context, user *ent
 		logData.Err = errors
 		return errors
 	}
+	return nil
+}
+
+func (s *registrationService) generateUserLimit(ctx context.Context, tx *gorm.DB, user_id uint) error {
+	limits := []entity.Limit{
+		{UserID: user_id, Tenor: 1, OriginalLimit: decimal.NewFromInt(100000), CurrentLimit: decimal.NewFromInt(100000)},
+		{UserID: user_id, Tenor: 2, OriginalLimit: decimal.NewFromInt(100000), CurrentLimit: decimal.NewFromInt(100000)},
+		{UserID: user_id, Tenor: 3, OriginalLimit: decimal.NewFromInt(100000), CurrentLimit: decimal.NewFromInt(100000)},
+		{UserID: user_id, Tenor: 6, OriginalLimit: decimal.NewFromInt(100000), CurrentLimit: decimal.NewFromInt(100000)},
+	}
+	if err := s.limitRepository.BulkInsertWithTransaction(ctx, tx, limits); err != nil {
+		return err
+	}
+
 	return nil
 }
