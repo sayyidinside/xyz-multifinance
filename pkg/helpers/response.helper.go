@@ -51,7 +51,7 @@ type ErrorResponse struct {
 func ResponseFormatter(c *fiber.Ctx, res BaseResponse) error {
 	// Insert log
 	var username string
-	if sessionUsername := c.Locals("username"); sessionUsername != nil {
+	if sessionUsername := c.Locals("name"); sessionUsername != nil {
 		username = sessionUsername.(string)
 	} else {
 		username = ""
