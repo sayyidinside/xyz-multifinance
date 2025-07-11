@@ -3,7 +3,9 @@ package helpers
 type contextKey string
 
 const (
-	ctxKeyIdentifier contextKey = "identifier"
-	ctxKeyUsername   contextKey = "username"
-	ctxKeyFunction   contextKey = "function"
+	CtxKeyIdentifier contextKey = "identifier"
+	CtxKeyUsername   contextKey = "username"
+	CtxKeyUserID     contextKey = "user_id"
+	CtxKeyIsAdmin    contextKey = "is_admin"
+	CtxKeyFunction   contextKey = "function"
 )
