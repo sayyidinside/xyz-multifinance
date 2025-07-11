@@ -73,6 +73,14 @@ func (s *userService) GetByUUID(ctx context.Context, uuid uuid.UUID) helpers.Bas
 		})
 	}
 
+	if !helpers.SelfOrAdminOnly(ctx, user.ID) {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusForbidden,
+			Success: false,
+			Message: "Unauthorized to access this data",
+		})
+	}
+
 	userModel := model.UserToDetailModel(user)
 
 	return helpers.LogBaseResponse(&logData, helpers.BaseResponse{

@@ -24,12 +24,7 @@ func RegisterUserRoutes(route fiber.Router, handler handler.UserHandler) {
 
 	user.Get(
 		"/",
-		middleware.Authorization(false, false, []string{
-			"View User",
-			"Create User",
-			"Update User",
-			"Delete User",
-		}),
+		middleware.Authorization(true, true, []string{}),
 		handler.GetAllUser,
 	)
 
