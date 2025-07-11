@@ -11,4 +11,5 @@ func RegisterRoutes(route fiber.Router, handler *handler.TransactionManagementHa
 	RegisterLimitRoutes(transactions, handler.LimitHandler)
 	RegisterTransactionRoutes(transactions, handler.TransactionHandler)
 	RegisterInstallmentRoutes(transactions, handler.InstallmentHandler)
+	RegisterPaymentRoutes(transactions, handler.PaymentHandler)
 }

@@ -13,6 +13,7 @@ import (
 type InstallmentRepository interface {
 	BeginTransaction(ctx context.Context) *gorm.DB
 	FindByUUID(ctx context.Context, uuid uuid.UUID) (installment *entity.TransactionInstallment, err error)
+	FindByID(ctx context.Context, id uint) (installment *entity.TransactionInstallment, err error)
 	FindAll(ctx context.Context, query *model.QueryGet) (installments *[]entity.TransactionInstallment, err error)
 	FindAllByTransactionID(ctx context.Context, query *model.QueryGet, transaction_id uint) (installments *[]entity.TransactionInstallment, err error)
 	FindAllByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (installments *[]entity.TransactionInstallment, err error)
@@ -44,6 +45,21 @@ func (r *installmentRepository) FindByUUID(ctx context.Context, uuid uuid.UUID) 
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
 	if result := r.DB.WithContext(ctx).Limit(1).Where("uuid = ?", uuid).
+		Preload("Transaction").Preload("Transaction.User").Preload("Payments").
+		Find(&transaction); result.Error != nil || result.RowsAffected == 0 {
+		logData.Message = "Not Passed"
+		logData.Err = result.Error
+		return nil, result.Error
+	}
+
+	return
+}
+
+func (r *installmentRepository) FindByID(ctx context.Context, id uint) (transaction *entity.TransactionInstallment, err error) {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	if result := r.DB.WithContext(ctx).Limit(1).Where("id = ?", id).
 		Preload("Transaction").Preload("Transaction.User").Preload("Payments").
 		Find(&transaction); result.Error != nil || result.RowsAffected == 0 {
 		logData.Message = "Not Passed"

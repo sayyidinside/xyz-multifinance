@@ -44,24 +44,30 @@ type (
 
 func PaymentToDetailModel(payment *entity.Payment) *PaymentDetail {
 	return &PaymentDetail{
-		ID:             payment.ID,
-		UUID:           payment.UUID,
-		TransactionID:  payment.TransactionID,
-		AssetName:      payment.Transaction.AssetName,
-		ContractNumber: payment.Transaction.ContractNumber,
-		Amount:         payment.Amount,
-		CreatedAt:      payment.CreatedAt,
-		UpdatedAt:      payment.UpdatedAt,
+		ID:                payment.ID,
+		UUID:              payment.UUID,
+		TransactionID:     payment.TransactionID,
+		AssetName:         payment.Transaction.AssetName,
+		ContractNumber:    payment.Transaction.ContractNumber,
+		InstallmentID:     payment.InstallmentID,
+		InstallmentNumber: payment.Installment.InstallmentNumber,
+		PaymentMethod:     payment.PaymentMethod,
+		Amount:            payment.Amount,
+		CreatedAt:         payment.CreatedAt,
+		UpdatedAt:         payment.UpdatedAt,
 	}
 }
 
 func PaymentToListModel(payment *entity.Payment) *PaymentList {
 	return &PaymentList{
-		ID:            payment.ID,
-		UUID:          payment.UUID,
-		TransactionID: payment.TransactionID,
-		Amount:        payment.Amount,
-		CreatedAt:     payment.CreatedAt,
+		ID:               payment.ID,
+		UUID:             payment.UUID,
+		TransactionID:    payment.TransactionID,
+		InstallmentID:    payment.InstallmentID,
+		InstalmentNumber: payment.Installment.InstallmentNumber,
+		PaymentMethod:    payment.PaymentMethod,
+		Amount:           payment.Amount,
+		CreatedAt:        payment.CreatedAt,
 	}
 }
 
@@ -71,6 +77,19 @@ func PaymentToListModels(payments []entity.Payment) (listModels []PaymentList) {
 	}
 
 	return listModels
+}
+
+func (input *PaymentInput) ToEntity() (*entity.Payment, error) {
+	amount, err := decimal.NewFromString(input.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Payment{
+		InstallmentID: input.InstallmentID,
+		Amount:        amount,
+		PaymentMethod: input.PaymentMethod,
+	}, nil
 }
 
 func (input *PaymentInput) Sanitize() {

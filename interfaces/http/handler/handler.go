@@ -12,6 +12,7 @@ type TransactionManagementHandler struct {
 	LimitHandler       LimitHandler
 	TransactionHandler TransactionHandler
 	InstallmentHandler InstallmentHandler
+	PaymentHandler     PaymentHandler
 }
 
 type Handlers struct {

@@ -13,6 +13,7 @@ import (
 type TransactionRepository interface {
 	BeginTransaction(ctx context.Context) *gorm.DB
 	FindByUUID(ctx context.Context, uuid uuid.UUID) (transaction *entity.Transaction, err error)
+	FindByID(ctx context.Context, id uint) (transaction *entity.Transaction, err error)
 	FindAll(ctx context.Context, query *model.QueryGet) (transactions *[]entity.Transaction, err error)
 	FindAllByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (transactions *[]entity.Transaction, err error)
 	Count(ctx context.Context, query *model.QueryGet) (total int64)
@@ -40,6 +41,21 @@ func (r *transactionRepository) FindByUUID(ctx context.Context, uuid uuid.UUID) 
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
 	if result := r.DB.WithContext(ctx).Limit(1).Where("uuid = ?", uuid).
+		Preload("User").Preload("User.Profile").Preload("Installments").Preload("Payments").
+		Find(&transaction); result.Error != nil || result.RowsAffected == 0 {
+		logData.Message = "Not Passed"
+		logData.Err = result.Error
+		return nil, result.Error
+	}
+
+	return
+}
+
+func (r *transactionRepository) FindByID(ctx context.Context, id uint) (transaction *entity.Transaction, err error) {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	if result := r.DB.WithContext(ctx).Limit(1).Where("id = ?", id).
 		Preload("User").Preload("User.Profile").Preload("Installments").Preload("Payments").
 		Find(&transaction); result.Error != nil || result.RowsAffected == 0 {
 		logData.Message = "Not Passed"
