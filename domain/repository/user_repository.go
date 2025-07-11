@@ -19,6 +19,7 @@ type UserRepository interface {
 	CountUnscoped(ctx context.Context, query *model.QueryGet) int64
 	Insert(ctx context.Context, user *entity.User) error
 	Update(ctx context.Context, user *entity.User) error
+	UpdateWithTransaction(ctx context.Context, tx *gorm.DB, user *entity.User) error
 	Delete(ctx context.Context, user *entity.User) error
 	// NameExist(ctx context.Context, user *entity.User) bool
 	EmailExist(ctx context.Context, user *entity.User) bool
@@ -200,6 +201,18 @@ func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
 	if err := r.DB.WithContext(ctx).Where("id = ?", user.ID).Updates(user).Error; err != nil {
+		logData.Message = "Not Passed"
+		logData.Err = err
+		return err
+	}
+	return nil
+}
+
+func (r *userRepository) UpdateWithTransaction(ctx context.Context, tx *gorm.DB, user *entity.User) error {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	if err := tx.WithContext(ctx).Where("id = ?", user.ID).Updates(user).Error; err != nil {
 		logData.Message = "Not Passed"
 		logData.Err = err
 		return err
