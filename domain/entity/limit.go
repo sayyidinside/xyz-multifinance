@@ -9,8 +9,8 @@ import (
 
 type Limit struct {
 	ID            uint            `json:"id" gorm:"primaryKey"`
-	UserID        uint            `json:"user_id" gorm:"not null;index:idx_limit"`
-	Tenor         uint            `json:"tenor" gorm:"type:smallint unsigned;not null;index:idx_limit"`
+	UserID        uint            `json:"user_id" gorm:"not null;index:idx_limit,unique"`
+	Tenor         uint            `json:"tenor" gorm:"type:smallint unsigned;not null;index:idx_limit,unique"`
 	CurrentLimit  decimal.Decimal `json:"current_limit" gorm:"type:decimal(20,2);not null"`
 	OriginalLimit decimal.Decimal `json:"original_limit" gorm:"type:decimal(20,2);not null"`
 
