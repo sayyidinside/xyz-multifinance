@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +19,7 @@ type UserHandler interface {
 	UpdateUser(c *fiber.Ctx) error
 	ResetPassword(c *fiber.Ctx) error
 	DeleteUser(c *fiber.Ctx) error
+	GetUUID(c *fiber.Ctx) error
 }
 
 type userHandler struct {
@@ -50,6 +52,23 @@ func (h *userHandler) GetUser(c *fiber.Ctx) error {
 		response = h.service.GetByUUID(ctx, uuid)
 		response.Log = &logData
 	}
+
+	return helpers.ResponseFormatter(c, response)
+}
+
+func (h *userHandler) GetUUID(c *fiber.Ctx) error {
+	log.Println("testetstestest")
+	ctx := helpers.ExtractIdentifierAndUsername(c)
+	logData := helpers.CreateLog(h)
+
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	log.Println("testetstestest")
+
+	var response helpers.BaseResponse
+	user_id := c.Locals("user_id").(float64)
+	response = h.service.GetUUIDByID(ctx, uint(user_id))
+	response.Log = &logData
 
 	return helpers.ResponseFormatter(c, response)
 }

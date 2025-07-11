@@ -14,6 +14,7 @@ import (
 type UserService interface {
 	GetByID(ctx context.Context, id uint) helpers.BaseResponse
 	GetByUUID(ctx context.Context, uuid uuid.UUID) helpers.BaseResponse
+	GetUUIDByID(ctx context.Context, id uint) helpers.BaseResponse
 	GetAll(ctx context.Context, query *model.QueryGet, url string) helpers.BaseResponse
 	Create(ctx context.Context, input *model.UserInput) helpers.BaseResponse
 	UpdateByID(ctx context.Context, input *model.UserUpdateInput, id uint) helpers.BaseResponse
@@ -57,6 +58,30 @@ func (s *userService) GetByID(ctx context.Context, id uint) helpers.BaseResponse
 		Success: true,
 		Message: "User data found",
 		Data:    userModel,
+	})
+}
+
+func (s *userService) GetUUIDByID(ctx context.Context, id uint) helpers.BaseResponse {
+	logData := helpers.CreateLog(s)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	user, err := s.repository.FindByID(ctx, id)
+	if user == nil || err != nil {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusNotFound,
+			Success: false,
+			Message: "User Not Found",
+			Errors:  err,
+		})
+	}
+
+	return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+		Status:  fiber.StatusOK,
+		Success: true,
+		Message: "User data found",
+		Data: map[string]uuid.UUID{
+			"uuid": user.UUID,
+		},
 	})
 }
 

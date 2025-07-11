@@ -12,6 +12,11 @@ func RegisterUserRoutes(route fiber.Router, handler handler.UserHandler) {
 	user.Use(middleware.Authentication())
 
 	user.Get(
+		"/get-uuid",
+		handler.GetUUID,
+	)
+
+	user.Get(
 		"/:uuid",
 		middleware.Authorization(false, false, []string{
 			"View User",
