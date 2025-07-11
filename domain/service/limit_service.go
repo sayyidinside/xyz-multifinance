@@ -60,7 +60,7 @@ func (s *limitService) GetUserLimit(ctx context.Context, uuid uuid.UUID, query *
 
 	limitModel := model.LimitToListModels(*limits)
 
-	totalData := s.limitRepository.Count(ctx, query)
+	totalData := s.limitRepository.CountByUserID(ctx, query, user.ID)
 	pagination := helpers.GeneratePaginationMetadata(query, url, totalData)
 
 	return helpers.LogBaseResponse(&logData, helpers.BaseResponse{

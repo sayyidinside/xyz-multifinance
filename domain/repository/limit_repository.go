@@ -17,6 +17,7 @@ type LimitRepository interface {
 	FindAll(ctx context.Context, query *model.QueryGet) (*[]entity.Limit, error)
 	FindAllByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (*[]entity.Limit, error)
 	Count(ctx context.Context, query *model.QueryGet) int64
+	CountByUserID(ctx context.Context, query *model.QueryGet, user_id uint) int64
 	CountUnscoped(ctx context.Context, query *model.QueryGet) int64
 	Insert(ctx context.Context, limit *entity.Limit) error
 	BulkInsertWithTransaction(ctx context.Context, tx *gorm.DB, limits []entity.Limit) error
@@ -132,6 +133,34 @@ func (r *limitRepository) Count(ctx context.Context, query *model.QueryGet) int6
 	var total int64
 
 	tx := r.DB.WithContext(ctx).Model(&entity.Limit{})
+
+	var allowedFields = map[string]string{
+		"tenor":   "limits.tenor",
+		"created": "limits.created_at",
+		"updated": "limits.updated_at",
+	}
+
+	tx = tx.Scopes(
+		helpers.Order(query, allowedFields),
+		helpers.Filter(query, allowedFields),
+		helpers.Search(query, allowedFields),
+	)
+
+	if err := tx.Count(&total).Error; err != nil {
+		logData.Message = "Not Passed"
+		logData.Err = err
+	}
+
+	return total
+}
+
+func (r *limitRepository) CountByUserID(ctx context.Context, query *model.QueryGet, user_id uint) int64 {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	var total int64
+
+	tx := r.DB.WithContext(ctx).Model(&entity.Limit{}).Where("user_id = ?", user_id)
 
 	var allowedFields = map[string]string{
 		"tenor":   "limits.tenor",
