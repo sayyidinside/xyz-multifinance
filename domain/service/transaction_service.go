@@ -446,11 +446,9 @@ func (s *transactionService) generateUpdatedLimitList(ctx context.Context, user_
 
 		var newLimit decimal.Decimal
 		if is_reduce {
-			if newLimit.IsPositive() {
-				newLimit = limit.CurrentLimit.Sub(otr)
-				if newLimit.IsNegative() {
-					newLimit = decimal.Zero
-				}
+			newLimit = limit.CurrentLimit.Sub(otr)
+			if newLimit.IsNegative() {
+				newLimit = decimal.Zero
 			}
 		} else {
 			newLimit = limit.CurrentLimit.Add(otr)

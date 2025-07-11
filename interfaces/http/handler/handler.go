@@ -11,6 +11,7 @@ type UserManagementHandler struct {
 type TransactionManagementHandler struct {
 	LimitHandler       LimitHandler
 	TransactionHandler TransactionHandler
+	InstallmentHandler InstallmentHandler
 }
 
 type Handlers struct {

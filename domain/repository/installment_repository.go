@@ -15,8 +15,10 @@ type InstallmentRepository interface {
 	FindByUUID(ctx context.Context, uuid uuid.UUID) (installment *entity.TransactionInstallment, err error)
 	FindAll(ctx context.Context, query *model.QueryGet) (installments *[]entity.TransactionInstallment, err error)
 	FindAllByTransactionID(ctx context.Context, query *model.QueryGet, transaction_id uint) (installments *[]entity.TransactionInstallment, err error)
+	FindAllByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (installments *[]entity.TransactionInstallment, err error)
 	Count(ctx context.Context, query *model.QueryGet) (total int64)
 	CountByTransactionID(ctx context.Context, query *model.QueryGet, transaction_id uint) (total int64)
+	CountByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (total int64)
 	CountUnscoped(ctx context.Context, query *model.QueryGet) (total int64)
 	BulkInsertWithTransaction(ctx context.Context, tx *gorm.DB, installments []entity.TransactionInstallment) error
 	InsertWithTransaction(ctx context.Context, tx *gorm.DB, installment *entity.TransactionInstallment) error
@@ -42,7 +44,7 @@ func (r *installmentRepository) FindByUUID(ctx context.Context, uuid uuid.UUID) 
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
 	if result := r.DB.WithContext(ctx).Limit(1).Where("uuid = ?", uuid).
-		Preload("Transaction").Preload("Payments").
+		Preload("Transaction").Preload("Transaction.User").Preload("Payments").
 		Find(&transaction); result.Error != nil || result.RowsAffected == 0 {
 		logData.Message = "Not Passed"
 		logData.Err = result.Error
@@ -56,11 +58,11 @@ func (r *installmentRepository) FindAll(ctx context.Context, query *model.QueryG
 	logData := helpers.CreateLog(r)
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{})
+	tx := r.DB.WithContext(ctx).Model(&entity.TransactionInstallment{}).Preload("Transaction")
 
 	var allowedFields = map[string]string{
-		"created": "transactions.created_at",
-		"updated": "transactions.updated_at",
+		"created": "transaction_installments.created_at",
+		"updated": "transaction_installments.updated_at",
 	}
 
 	tx = tx.Scopes(
@@ -83,11 +85,41 @@ func (r *installmentRepository) FindAllByTransactionID(ctx context.Context, quer
 	logData := helpers.CreateLog(r)
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{}).Where("transaction_id = ?", transaction_id)
+	tx := r.DB.WithContext(ctx).Model(&entity.TransactionInstallment{}).
+		Preload("Transaction").Where("transaction_id = ?", transaction_id)
 
 	var allowedFields = map[string]string{
-		"created": "transactions.created_at",
-		"updated": "transactions.updated_at",
+		"created": "transaction_installments.created_at",
+		"updated": "transaction_installments.updated_at",
+	}
+
+	tx = tx.Scopes(
+		helpers.Paginate(query),
+		helpers.Order(query, allowedFields),
+		helpers.Filter(query, allowedFields),
+		helpers.Search(query, allowedFields),
+	)
+
+	if err := tx.Find(&transactions).Error; err != nil {
+		logData.Message = "Not Passed"
+		logData.Err = err
+		return nil, err
+	}
+
+	return
+}
+
+func (r *installmentRepository) FindAllByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (transactions *[]entity.TransactionInstallment, err error) {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	tx := r.DB.WithContext(ctx).Model(&entity.TransactionInstallment{}).
+		Joins("JOIN transactions on transactions.id = transaction_installments.transaction_id").
+		Where("transactions.user_id = ?", user_id).Preload("Transaction")
+
+	var allowedFields = map[string]string{
+		"created": "transaction_installments.created_at",
+		"updated": "transaction_installments.updated_at",
 	}
 
 	tx = tx.Scopes(
@@ -110,11 +142,11 @@ func (r *installmentRepository) Count(ctx context.Context, query *model.QueryGet
 	logData := helpers.CreateLog(r)
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{})
+	tx := r.DB.WithContext(ctx).Model(&entity.TransactionInstallment{})
 
 	var allowedFields = map[string]string{
-		"created": "transactions.created_at",
-		"updated": "transactions.updated_at",
+		"created": "transaction_installments.created_at",
+		"updated": "transaction_installments.updated_at",
 	}
 
 	tx = tx.Scopes(
@@ -135,11 +167,38 @@ func (r *installmentRepository) CountByTransactionID(ctx context.Context, query 
 	logData := helpers.CreateLog(r)
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{}).Where("transaction_id = ?", transaction_id)
+	tx := r.DB.WithContext(ctx).Model(&entity.TransactionInstallment{}).Where("transaction_id = ?", transaction_id)
 
 	var allowedFields = map[string]string{
-		"created": "transactions.created_at",
-		"updated": "transactions.updated_at",
+		"created": "transaction_installments.created_at",
+		"updated": "transaction_installments.updated_at",
+	}
+
+	tx = tx.Scopes(
+		helpers.Order(query, allowedFields),
+		helpers.Filter(query, allowedFields),
+		helpers.Search(query, allowedFields),
+	)
+
+	if err := tx.Count(&total).Error; err != nil {
+		logData.Message = "Not Passed"
+		logData.Err = err
+	}
+
+	return
+}
+
+func (r *installmentRepository) CountByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (total int64) {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	tx := r.DB.WithContext(ctx).Model(&entity.TransactionInstallment{}).
+		Joins("JOIN transactions on transactions.id = transaction_installments.transaction_id").
+		Where("transactions.user_id = ?", user_id)
+
+	var allowedFields = map[string]string{
+		"created": "transaction_installments.created_at",
+		"updated": "transaction_installments.updated_at",
 	}
 
 	tx = tx.Scopes(
@@ -160,11 +219,11 @@ func (r *installmentRepository) CountUnscoped(ctx context.Context, query *model.
 	logData := helpers.CreateLog(r)
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Transaction{}).Unscoped()
+	tx := r.DB.WithContext(ctx).Model(&entity.TransactionInstallment{}).Unscoped()
 
 	var allowedFields = map[string]string{
-		"created": "transactions.created_at",
-		"updated": "transactions.updated_at",
+		"created": "transaction_installments.created_at",
+		"updated": "transaction_installments.updated_at",
 	}
 
 	tx = tx.Scopes(

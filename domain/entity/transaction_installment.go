@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
@@ -21,6 +22,7 @@ const (
 
 type TransactionInstallment struct {
 	ID                uint            `json:"id" gorm:"primaryKey"`
+	UUID              uuid.UUID       `json:"uuid" gorm:"uniqueIndex;type:char(36);not null"`
 	TransactionID     uint            `json:"transaction_id" gorm:"not null"`
 	InstallmentNumber uint            `json:"installment_number" gorm:"not null;type:smallint unsigned"`
 	DueDate           time.Time       `json:"due_date" gorm:"type:date;not null"`
@@ -40,6 +42,15 @@ type TransactionInstallment struct {
 
 func (TransactionInstallment) TableName() string {
 	return "transaction_installments"
+}
+
+// BeforeCreate is a GORM hook that is triggered before a new record is inserted into the database.
+// It generates a new UUID for the UUID field of the VEN_Legal struct.
+func (t *TransactionInstallment) BeforeCreate(tx *gorm.DB) (err error) {
+	if t.UUID == uuid.Nil {
+		t.UUID = uuid.New()
+	}
+	return
 }
 
 func (p *PaymentStatus) Scan(value interface{}) error {
