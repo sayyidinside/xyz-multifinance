@@ -18,6 +18,7 @@ type UserService interface {
 	Create(ctx context.Context, input *model.UserInput) helpers.BaseResponse
 	UpdateByID(ctx context.Context, input *model.UserUpdateInput, id uint) helpers.BaseResponse
 	ChangePassByID(ctx context.Context, input *model.ChangePasswordInput, id uint) helpers.BaseResponse
+	ChangePassByUUID(ctx context.Context, input *model.ChangePasswordInput, uuid uuid.UUID) helpers.BaseResponse
 	DeleteByID(ctx context.Context, id uint) helpers.BaseResponse
 	SuspendByUUID(ctx context.Context, uuid uuid.UUID) helpers.BaseResponse
 }
@@ -233,6 +234,46 @@ func (s *userService) ChangePassByID(ctx context.Context, input *model.ChangePas
 	}
 
 	userEntity.ID = id
+	if err := s.repository.Update(ctx, userEntity); err != nil {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusInternalServerError,
+			Success: false,
+			Message: "Error updating data",
+			Errors:  err,
+		})
+	}
+
+	return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+		Status:  fiber.StatusOK,
+		Success: true,
+		Message: "User password successfully updated",
+	})
+}
+
+func (s *userService) ChangePassByUUID(ctx context.Context, input *model.ChangePasswordInput, uuid uuid.UUID) helpers.BaseResponse {
+	logData := helpers.CreateLog(s)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	user, err := s.repository.FindByUUID(ctx, uuid)
+	if user == nil || err != nil {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusNotFound,
+			Success: false,
+			Message: "User not found",
+			Errors:  err,
+		})
+	}
+
+	userEntity := model.ChangePasswordToEntity(input)
+	if userEntity == nil {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusInternalServerError,
+			Success: false,
+			Message: "Error parsing model",
+		})
+	}
+
+	userEntity.ID = user.ID
 	if err := s.repository.Update(ctx, userEntity); err != nil {
 		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
 			Status:  fiber.StatusInternalServerError,

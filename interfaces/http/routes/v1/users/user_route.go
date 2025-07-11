@@ -37,7 +37,7 @@ func RegisterUserRoutes(route fiber.Router, handler handler.UserHandler) {
 	)
 
 	user.Put(
-		"/:id/reset-password",
+		"/:uuid/reset-password",
 		middleware.Authorization(true, false, []string{}),
 		handler.ResetPassword,
 	)

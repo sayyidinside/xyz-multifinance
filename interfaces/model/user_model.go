@@ -236,7 +236,7 @@ func SanitizeUserUpdateInput(input *UserUpdateInput) {
 	input.Email = sanitizer.Sanitize(input.Email)
 }
 
-func SanitizeChangePasswordInput(input *ChangePasswordInput) {
+func (input *ChangePasswordInput) Sanitize() {
 	sanitizer := bluemonday.StrictPolicy()
 
 	input.Password = sanitizer.Sanitize(input.Password)

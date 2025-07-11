@@ -173,12 +173,12 @@ func (h *userHandler) ResetPassword(c *fiber.Ctx) error {
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 	var response helpers.BaseResponse
 
-	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	uuid, err := uuid.Parse(c.Params("uuid"))
 	if err != nil {
 		response = helpers.LogBaseResponse(&logData, helpers.BaseResponse{
 			Status:  fiber.StatusBadRequest,
 			Success: false,
-			Message: "Invalid ID format",
+			Message: "Invalid UUID Format",
 			Log:     &logData,
 			Errors:  err,
 		})
@@ -194,7 +194,7 @@ func (h *userHandler) ResetPassword(c *fiber.Ctx) error {
 			Errors:  err,
 		}
 	} else {
-		model.SanitizeChangePasswordInput(&input)
+		input.Sanitize()
 
 		if err := helpers.ValidateInput(input); err != nil {
 			response = helpers.BaseResponse{
@@ -205,7 +205,7 @@ func (h *userHandler) ResetPassword(c *fiber.Ctx) error {
 				Errors:  err,
 			}
 		} else {
-			response = h.service.ChangePassByID(ctx, &input, uint(id))
+			response = h.service.ChangePassByUUID(ctx, &input, uuid)
 			response.Log = &logData
 		}
 	}
