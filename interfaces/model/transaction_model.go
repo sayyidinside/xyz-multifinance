@@ -49,13 +49,12 @@ type (
 	}
 
 	TransactionInput struct {
-		UserID             uint   `json:"user_id" form:"user_id" xml:"user_id" validate:"required,numeric"`
 		AssetName          string `json:"asset_name" form:"asset_name" xml:"asset_name" validate:"required"`
-		ContractNumber     string `json:"customer_number" form:"customer_number" xml:"customer_number" validate:"required"`
-		OnTheRoad          string `json:"on_the_road" form:"on_the_road" xml:"on_the_road" validate:"required"`
-		AdminFee           string `json:"admin_fee" form:"admin_fee" xml:"admin_fee" validate:"required"`
-		MonthlyInstallment string `json:"installment_amount" form:"installment_amount" xml:"installment_amount" validate:"required"`
-		InterestAmount     string `json:"interest_amount" form:"interest_amount" xml:"interest_amount" validate:"required"`
+		ContractNumber     string `json:"customer_number" form:"customer_number" xml:"customer_number" validate:"required,numeric"`
+		OnTheRoad          string `json:"on_the_road" form:"on_the_road" xml:"on_the_road" validate:"required,numeric"`
+		AdminFee           string `json:"admin_fee" form:"admin_fee" xml:"admin_fee" validate:"required,numeric"`
+		MonthlyInstallment string `json:"installment_amount" form:"installment_amount" xml:"installment_amount" validate:"required,numeric"`
+		InterestAmount     string `json:"interest_amount" form:"interest_amount" xml:"interest_amount" validate:"required,numeric"`
 		Tenor              uint   `json:"tenor" form:"tenor" xml:"tenor" validate:"required"`
 	}
 )
@@ -108,6 +107,35 @@ func TransactionToListModels(transactions []entity.Transaction) (listModels []Tr
 	}
 
 	return listModels
+}
+
+func (input *TransactionInput) ToEntity() (*entity.Transaction, error) {
+	otr_decimal, err := decimal.NewFromString(input.OnTheRoad)
+	if err != nil {
+		return nil, err
+	}
+	admin_decimal, err := decimal.NewFromString(input.AdminFee)
+	if err != nil {
+		return nil, err
+	}
+	monthly_decimal, err := decimal.NewFromString(input.MonthlyInstallment)
+	if err != nil {
+		return nil, err
+	}
+	interest_decimal, err := decimal.NewFromString(input.InterestAmount)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.Transaction{
+		AssetName:          input.AssetName,
+		ContractNumber:     input.ContractNumber,
+		OnTheRoad:          otr_decimal,
+		AdminFee:           admin_decimal,
+		MonthlyInstallment: monthly_decimal,
+		InterestAmount:     interest_decimal,
+		Tenor:              input.Tenor,
+	}, nil
 }
 
 func (input *TransactionInput) Sanitize() {
