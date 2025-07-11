@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -57,13 +56,10 @@ func (h *userHandler) GetUser(c *fiber.Ctx) error {
 }
 
 func (h *userHandler) GetUUID(c *fiber.Ctx) error {
-	log.Println("testetstestest")
 	ctx := helpers.ExtractIdentifierAndUsername(c)
 	logData := helpers.CreateLog(h)
 
 	defer helpers.LogSystemWithDefer(ctx, &logData)
-
-	log.Println("testetstestest")
 
 	var response helpers.BaseResponse
 	user_id := c.Locals("user_id").(float64)

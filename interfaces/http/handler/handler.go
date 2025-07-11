@@ -8,8 +8,13 @@ type UserManagementHandler struct {
 	ProfileHandler    ProfileHandler
 }
 
+type TransactionManagementHandler struct {
+	LimitHandler LimitHandler
+}
+
 type Handlers struct {
-	UserManagementHandler *UserManagementHandler
-	AuthHandler           AuthHandler
-	RegistrationHandler   RegistrationHandler
+	UserManagementHandler        *UserManagementHandler
+	AuthHandler                  AuthHandler
+	RegistrationHandler          RegistrationHandler
+	TransactionManagementHandler *TransactionManagementHandler
 }

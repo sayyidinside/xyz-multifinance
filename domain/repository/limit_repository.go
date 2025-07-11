@@ -15,6 +15,7 @@ type LimitRepository interface {
 	FindByID(ctx context.Context, id uint) (*entity.Limit, error)
 	FindByUUID(ctx context.Context, uuid uuid.UUID) (*entity.Limit, error)
 	FindAll(ctx context.Context, query *model.QueryGet) (*[]entity.Limit, error)
+	FindAllByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (*[]entity.Limit, error)
 	Count(ctx context.Context, query *model.QueryGet) int64
 	CountUnscoped(ctx context.Context, query *model.QueryGet) int64
 	Insert(ctx context.Context, limit *entity.Limit) error
@@ -39,10 +40,6 @@ func (r *limitRepository) FindByID(ctx context.Context, id uint) (*entity.Limit,
 	result := r.DB.WithContext(ctx).
 		Limit(1).
 		Where("id = ?", id).
-		Preload("Role", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name").Unscoped()
-		}).
-		Preload("Profile").Preload("Document").
 		Find(&limit)
 
 	if result.Error != nil || result.RowsAffected == 0 {
@@ -60,10 +57,6 @@ func (r *limitRepository) FindByUUID(ctx context.Context, uuid uuid.UUID) (*enti
 
 	var limit entity.Limit
 	if result := r.DB.WithContext(ctx).Limit(1).Where("uuid = ?", uuid).
-		Preload("Role", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name").Unscoped()
-		}).
-		Preload("Profile").Preload("Document").
 		Find(&limit); result.Error != nil || result.RowsAffected == 0 {
 		logData.Message = "Not Passed"
 		logData.Err = result.Error
@@ -78,19 +71,42 @@ func (r *limitRepository) FindAll(ctx context.Context, query *model.QueryGet) (*
 	defer helpers.LogSystemWithDefer(ctx, &logData)
 
 	var limits []entity.Limit
-	tx := r.DB.WithContext(ctx).Model(&entity.Limit{}).
-		Joins("JOIN roles on roles.id = limits.role_id").
-		Preload("Role", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name").Unscoped()
-		})
+	tx := r.DB.WithContext(ctx).Model(&entity.Limit{})
 
 	var allowedFields = map[string]string{
-		"role":      "roles.name",
-		"limitname": "limits.limitname",
-		"email":     "limits.email",
-		"validated": "limits.validated_at",
-		"created":   "limits.created_at",
-		"updated":   "limits.updated_at",
+		"tenor":   "limits.tenor",
+		"created": "limits.created_at",
+		"updated": "limits.updated_at",
+	}
+
+	tx = tx.Scopes(
+		helpers.Paginate(query),
+		helpers.Order(query, allowedFields),
+		helpers.Filter(query, allowedFields),
+		helpers.Search(query, allowedFields),
+	)
+
+	if err := tx.Find(&limits).Error; err != nil {
+		logData.Message = "Not Passed"
+		logData.Err = err
+		return nil, err
+	}
+
+	return &limits, nil
+}
+
+func (r *limitRepository) FindAllByUserID(ctx context.Context, query *model.QueryGet, user_id uint) (*[]entity.Limit, error) {
+	logData := helpers.CreateLog(r)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	var limits []entity.Limit
+	tx := r.DB.WithContext(ctx).Model(&entity.Limit{}).
+		Where("user_id = ?", user_id)
+
+	var allowedFields = map[string]string{
+		"tenor":   "limits.tenor",
+		"created": "limits.created_at",
+		"updated": "limits.updated_at",
 	}
 
 	tx = tx.Scopes(
@@ -115,19 +131,12 @@ func (r *limitRepository) Count(ctx context.Context, query *model.QueryGet) int6
 
 	var total int64
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Limit{}).
-		Joins("JOIN roles on roles.id = limits.role_id").
-		Preload("Role", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name")
-		})
+	tx := r.DB.WithContext(ctx).Model(&entity.Limit{})
 
 	var allowedFields = map[string]string{
-		"role":      "roles.name",
-		"limitname": "limits.limitname",
-		"email":     "limits.email",
-		"validated": "limits.validated_at",
-		"created":   "limits.created_at",
-		"updated":   "limits.updated_at",
+		"tenor":   "limits.tenor",
+		"created": "limits.created_at",
+		"updated": "limits.updated_at",
 	}
 
 	tx = tx.Scopes(
@@ -150,19 +159,12 @@ func (r *limitRepository) CountUnscoped(ctx context.Context, query *model.QueryG
 
 	var total int64
 
-	tx := r.DB.WithContext(ctx).Model(&entity.Limit{}).
-		Joins("JOIN roles on roles.id = limits.role_id").
-		Preload("Role", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name").Unscoped()
-		})
+	tx := r.DB.WithContext(ctx).Model(&entity.Limit{})
 
 	var allowedFields = map[string]string{
-		"role":      "roles.name",
-		"limitname": "limits.limitname",
-		"email":     "limits.email",
-		"validated": "limits.validated_at",
-		"created":   "limits.created_at",
-		"updated":   "limits.updated_at",
+		"tenor":   "limits.tenor",
+		"created": "limits.created_at",
+		"updated": "limits.updated_at",
 	}
 
 	tx = tx.Scopes(
