@@ -12,6 +12,7 @@ import (
 
 type ProfileService interface {
 	UpdateProfile(ctx context.Context, input *model.UserProfileUpdate, id uint) helpers.BaseResponse
+	GetProfile(ctx context.Context) helpers.BaseResponse
 }
 
 type profileService struct {
@@ -110,4 +111,36 @@ func (s *profileService) ValidateEntityInput(ctx context.Context, user *entity.U
 		return errors
 	}
 	return nil
+}
+
+func (s *profileService) GetProfile(ctx context.Context) helpers.BaseResponse {
+	logData := helpers.CreateLog(s)
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	session_user_id, ok := ctx.Value(helpers.CtxKeyUserID).(float64)
+	if session_user_id == 0 || !ok {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusInternalServerError,
+			Success: false,
+			Message: "Missing user id",
+		})
+	}
+
+	profile, err := s.profileRepository.FindByUserID(ctx, uint(session_user_id))
+	if err != nil {
+		return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+			Status:  fiber.StatusInternalServerError,
+			Success: false,
+			Message: "Profile not found",
+		})
+	}
+
+	profileModel := model.UserProfileToDetailModel(profile)
+
+	return helpers.LogBaseResponse(&logData, helpers.BaseResponse{
+		Status:  fiber.StatusOK,
+		Success: true,
+		Message: "Profile data found",
+		Data:    profileModel,
+	})
 }

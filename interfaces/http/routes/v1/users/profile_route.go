@@ -15,4 +15,9 @@ func RegisterProfileRoutes(route fiber.Router, handler handler.ProfileHandler) {
 		"/",
 		handler.UpdateProfile,
 	)
+
+	user.Get(
+		"/",
+		handler.GetProfile,
+	)
 }

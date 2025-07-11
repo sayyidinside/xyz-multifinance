@@ -9,6 +9,7 @@ import (
 
 type ProfileHandler interface {
 	UpdateProfile(c *fiber.Ctx) error
+	GetProfile(c *fiber.Ctx) error
 }
 
 type profileHandler struct {
@@ -19,6 +20,18 @@ func NewProfileHandler(service service.ProfileService) ProfileHandler {
 	return &profileHandler{
 		service: service,
 	}
+}
+
+func (h *profileHandler) GetProfile(c *fiber.Ctx) error {
+	ctx := helpers.ExtractIdentifierAndUsername(c)
+	logData := helpers.CreateLog(h)
+
+	defer helpers.LogSystemWithDefer(ctx, &logData)
+
+	response := h.service.GetProfile(ctx)
+	response.Log = &logData
+
+	return helpers.ResponseFormatter(c, response)
 }
 
 func (h *profileHandler) UpdateProfile(c *fiber.Ctx) error {
