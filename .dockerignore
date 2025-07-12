@@ -1,12 +1,10 @@
 .git
 .gitignore
-.env
 docker-compose.yml
 Dockerfile
+.env
 bin
 tmp
-vendor
+tests
 *.log
-*.db
-*.sql
-.DS_Store
+*.md

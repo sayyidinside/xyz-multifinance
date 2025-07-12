@@ -1,47 +1,58 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - APP_ENV=development
-      - APP_PORT=8080
-      - DEV_DB_HOST=db
-      - DEV_DB_PORT=3306
-      - DEV_DB_USERNAME=root
-      - DEV_DB_PASSWORD=password
-      - DEV_DB_NAME=gofiber_db
-      - REDIS_HOST=redis
+    build: .
     ports:
-      - "8080:8080"
+      - "3009:3009"
+    volumes:
+      - .:/app:ro  # Mount the current directory as read-only
+    working_dir: /root/
+    environment:
+      ENV: docker
+      PORT: 3009
+      LOCAL_DB_HOST: db
+      LOCAL_DB_PORT: 3306
+      LOCAL_DB_USERNAME: root
+      LOCAL_DB_PASSWORD: rootpassword
+      LOCAL_DB_NAME: xyz_multifinance_db
+      REDIS_ADDRESS: redis:6379
+      # Add all other required environment variables here
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
-      - app-network
+      - backend
 
   db:
     image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: appdb
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppass
+      MYSQL_DATABASE: xyz_multifinance_db
     volumes:
-      - db-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
     networks:
-      - app-network
+      - backend
 
   redis:
-    image: redis:7-alpine
-    command: redis-server --requirepass redispass
+    image: redis:alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
     networks:
-      - app-network
+      - backend
 
 volumes:
-  db-data:
+  db_data:
 
 networks:
-  app-network:
+  backend:
     driver: bridge

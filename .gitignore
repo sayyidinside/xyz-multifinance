@@ -1,5 +1,10 @@
+.git
+.gitignore
+docker-compose.yml
+Dockerfile
 .env
-tmp/
-tests/storage/logs/*
-storage/logs/*
-storage/uploads/*
+bin
+tmp
+tests
+*.log
+*.md
