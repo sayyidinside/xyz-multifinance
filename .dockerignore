@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+docker-compose.yml
+Dockerfile
+bin
+tmp
+vendor
+*.log
+*.db
+*.sql
+.DS_Store
