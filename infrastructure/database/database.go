@@ -27,6 +27,12 @@ func Connect() (*gorm.DB, error) {
 		dbUser = cfg.DevDbUsername
 		dbPassword = cfg.DevDbPassword
 		dbName = cfg.DevDbName
+	case "test":
+		dbHost = cfg.TestDbHost
+		dbPort = cfg.TestDbPort
+		dbUser = cfg.TestDbUsername
+		dbPassword = cfg.TestDbPassword
+		dbName = cfg.TestDbName
 	default:
 		dbHost = cfg.LocalDbHost
 		dbPort = cfg.LocalDbPort

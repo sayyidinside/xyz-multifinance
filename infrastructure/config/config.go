@@ -65,6 +65,11 @@ type Config struct {
 	LocalDbName     string `mapstructure:"LOCAL_DB_NAME"`
 	LocalDbHost     string `mapstructure:"LOCAL_DB_HOST"`
 	LocalDbPort     string `mapstructure:"LOCAL_DB_PORT"`
+	TestDbUsername  string `mapstructure:"TEST_DB_USERNAME"`
+	TestDbPassword  string `mapstructure:"TEST_DB_PASSWORD"`
+	TestDbName      string `mapstructure:"TEST_DB_NAME"`
+	TestDbHost      string `mapstructure:"TEST_DB_HOST"`
+	TestDbPort      string `mapstructure:"TEST_DB_PORT"`
 }
 
 var AppConfig *Config
