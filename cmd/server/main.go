@@ -27,8 +27,6 @@ func main() {
 
 	configureMiddleware(app)
 
-	app.Static("/files", "./storage/uploads")
-
 	db, err := database.Connect()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -39,6 +37,11 @@ func main() {
 	bootstrap.Initialize(
 		app, db, redisClient.CacheClient, redisClient.LockClient,
 	)
+
+	app.Static("/files", "./storage/uploads", fiber.Static{
+		Browse: false,
+		MaxAge: 3600,
+	})
 
 	// Setup graceful shutdown
 	shutdownHandler := shutdown.NewShutdownHandler(
