@@ -1,4 +1,4 @@
-package test
+package tests
 
 import (
 	"os"
@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	testApp *fiber.App
-	testDB  *gorm.DB
+	TestApp *fiber.App
+	TestDB  *gorm.DB
 )
 
 func TestMain(m *testing.M) {
@@ -36,18 +36,18 @@ func setupTestEnvironment() {
 	config.AppConfig.Env = "test"
 	// Initialize test database
 	var err error
-	testDB, err = database.Connect()
+	TestDB, err = database.Connect()
 	if err != nil {
 		panic("failed to connect test database: " + err.Error())
 	}
 
 	// Create test app
-	testApp = fiber.New()
-	bootstrap.Initialize(testApp, testDB, nil, nil)
+	TestApp = fiber.New()
+	bootstrap.Initialize(TestApp, TestDB, nil, nil)
 }
 
 func teardownTestEnvironment() {
-	if err := testDB.Migrator().DropTable(
+	if err := TestDB.Migrator().DropTable(
 		&entity.Module{},
 		&entity.Permission{},
 		&entity.Role{},
@@ -65,7 +65,7 @@ func teardownTestEnvironment() {
 	}
 
 	// Close database
-	if sqlDB, err := testDB.DB(); err == nil {
+	if sqlDB, err := TestDB.DB(); err == nil {
 		sqlDB.Close()
 	}
 }

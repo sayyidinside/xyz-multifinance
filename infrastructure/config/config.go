@@ -77,6 +77,13 @@ var AppConfig *Config
 func LoadConfig() error {
 	viper.SetConfigFile("./.env")
 
+	// Try to read the configuration file (optional)
+	if err := viper.ReadInConfig(); err != nil {
+		log.Printf("Error reading config file, %s", err)
+		viper.SetConfigFile("../.env")
+		viper.ReadInConfig()
+	}
+
 	// Enable Viper to read environment variables
 	viper.AutomaticEnv()
 
@@ -84,11 +91,6 @@ func LoadConfig() error {
 	viper.SetDefault("PORT", "4000")
 	viper.SetDefault("JWT_ACCESS_TIME", 30)
 	viper.SetDefault("JWT_REFRESH_TIME", 168)
-
-	// Try to read the configuration file (optional)
-	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("Error reading config file, %s", err)
-	}
 
 	AppConfig = &Config{}
 	if err := viper.Unmarshal(AppConfig); err != nil {
