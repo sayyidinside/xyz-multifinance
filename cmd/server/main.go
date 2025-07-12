@@ -27,6 +27,8 @@ func main() {
 
 	configureMiddleware(app)
 
+	app.Static("/files", "./storage/uploads")
+
 	db, err := database.Connect()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)

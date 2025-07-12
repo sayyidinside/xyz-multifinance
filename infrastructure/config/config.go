@@ -14,6 +14,7 @@ type Config struct {
 	Port      string `mapstructure:"PORT"`
 	AdminPass string `mapstructure:"ADMIN_PASS"`
 	Debug     bool   `mapstructure:"DEBUG"`
+	BaseUrl   string `mapstructure:"BASE_URL"`
 
 	// JWT
 	JwtRefreshPrivateSecret string `mapstructure:"JWT_REFRESH_PRIVATE_SECRET"`

@@ -6,6 +6,7 @@ type UserManagementHandler struct {
 	ModuleHandler     ModuleHandler
 	RoleHandler       RoleHandler
 	ProfileHandler    ProfileHandler
+	DocumentHandler   DocumentHandler
 }
 
 type TransactionManagementHandler struct {
